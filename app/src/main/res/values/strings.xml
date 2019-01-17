@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ETMAEN_G7</string>
+    <string name="verify" translatable="true">Verify Person</string>
+    <string name="add_face" translatable="true">Add Face</string>
+    <string name="full_name" translatable="true">Name</string>
+    <string name="contact_number" translatable="true">Contact phone number</string>
+    <string name="upload" translatable="true">Upload</string>
+    <string name="added_items" translatable="true">Added items</string>
 </resources>
