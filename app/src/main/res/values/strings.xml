@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ETMAEN_G7</string>
+    <string name="app_name" translatable="true">ETMAEN</string>
     <string name="verify" translatable="true">Verify Person</string>
     <string name="add_face" translatable="true">Add Face</string>
     <string name="full_name" translatable="true">Name</string>

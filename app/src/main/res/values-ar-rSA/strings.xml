@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">إطمئن</string>
+    <string name="verify">مساعدة ضائع</string>
+    <string name="add_face">إضافة شخص</string>
+    <string name="full_name" >الأسم</string>
+    <string name="contact_number" >رقم جوال التواصل</string>
+    <string name="upload">رفع</string>
+    <string name="added_items">المضافون</string>
+</resources>
