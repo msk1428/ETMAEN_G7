@@ -34,7 +34,7 @@
                 android:textAppearance="?android:textAppearanceLarge"
                 android:layout_toRightOf="@+id/image"
                 android:layout_marginTop="10dp"
-                tools:text="JOS COLLEGE OF EDUCATION"
+                tools:text="NAME"
                 android:layout_toEndOf="@+id/image" />
             <TextView
                 android:id="@+id/particulars"
@@ -44,7 +44,7 @@
                 android:textColor="@color/black"
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/name"
-                tools:text="StudendId: MA67288"
+                tools:text="Particulars"
                 android:layout_toRightOf="@+id/image"
                 android:layout_toEndOf="@+id/image" />
             <TextView
@@ -55,7 +55,7 @@
                 android:textColor="@color/black"
                 android:layout_marginTop="5dp"
                 android:layout_below="@+id/particulars"
-                tools:text="StudendId: MA67288"
+                tools:text="Status"
                 android:layout_toRightOf="@+id/image"
                 android:layout_toEndOf="@+id/image" />
         </RelativeLayout>

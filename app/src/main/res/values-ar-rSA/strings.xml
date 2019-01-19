@@ -1,14 +1,34 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">إطمئن</string>
-    <string name="verify">مساعدة ضائع</string>
-    <string name="add_face">إضافة شخص</string>
-    <string name="full_name" >الأسم</string>
-    <string name="contact_number" >رقم جوال التواصل</string>
-    <string name="upload">رفع</string>
-    <string name="added_items">المضافون</string>
+    <string name="full_name">الاسم</string>
+    <string name="contact_number">رقم التواصل </string>
+    <string name="upload">إرفع</string>
+    <string name="train">تدريب</string>
+    <string name="classification">النتيجة</string>
+    <string name="verify">عملية التحقق</string>
+    <string name="add_face">التسجيل</string>
+    <string name="error_name"> الاسم خطأ</string>
+    <string name="error_contact_number">رقم الجوال مطلوب</string>
+    <string name="uploadImages">قم برفع صورة</string>
+    <string name="msg_loading">تحميل…</string>
+    <string name="create">إضافة شخص</string>
     <string name="name">الاسم</string>
     <string name="address">العنوان</string>
     <string name="phone_number">رقم الجوال</string>
     <string name="resend_message">إعادة الإرسال</string>
+    <string name="added_items">الأشخاص المضافون</string>
+    <string name="current_location">الموقع الحالي</string>
+    <string name="not_available">غير متاح</string>
+    <string name="select_image">من فضلك اختار صورة</string>
+    <string name="permission_denied">تم رفض الإذن ، تكون الأذونات مهمة جدًا لاستخدام التطبيقات</string>
+    <string name="sorry_error">نأسف,لقد تم العثور على خطأ!</string>
+    <string name="error_creation">خطأ في التسجيل راجع مرة اخرى</string>
+    <string name="no_face_matching">ل يوجد أوجه مطابقة من السجلات</string>
+    <string name="person_found">الشخص موجود</string>
+    <string name="error_find_face">خطأ,في البحث عن الوجهه</string>
+    <string name="is_found">لقد تم ايجاد الوجه </string>
+    <string name="valid_number">من فضلك,قم بادخال رقم تواصل صحيح</string>
+    <string name= "record_deleted_success">تم حذف البيانات بنجاح</string>
+    <string name="error_deleting">خطأ,في عملية حذف البيانات</string>
+    <string name="successfully_created">تمت اضافة البيانات بنجاح</string>
 </resources>
