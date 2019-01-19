@@ -7,4 +7,8 @@
     <string name="contact_number" >رقم جوال التواصل</string>
     <string name="upload">رفع</string>
     <string name="added_items">المضافون</string>
+    <string name="name">الاسم</string>
+    <string name="address">العنوان</string>
+    <string name="phone_number">رقم الجوال</string>
+    <string name="resend_message">إعادة الإرسال</string>
 </resources>

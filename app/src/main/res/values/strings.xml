@@ -6,4 +6,8 @@
     <string name="contact_number" translatable="true">Contact phone number</string>
     <string name="upload" translatable="true">Upload</string>
     <string name="added_items" translatable="true">Added items</string>
+    <string name="name" translatable="true">Name</string>
+    <string name="address" translatable="true">Address</string>
+    <string name="phone_number" translatable="true">Phone number</string>
+    <string name="resend_message" translatable="true">RESEND MESSAGE</string>
 </resources>
