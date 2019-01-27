@@ -26,14 +26,17 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-     verify_person.setOnClickListener(view ->{
-         Intent intent = new Intent(this ,VerifyActivity.class);
-     });
+        verify_person.setOnClickListener(view ->{
+             Intent intent = new Intent(this ,VerifyActivity.class);
+             startActivity(intent);
+        });
 
 
-    add_face.setOnClickListener(view -> {
-        Intent intent = new Intent(this, AddFaceActivity.class);
-        startActivity(intent);
-    });
+        add_face.setOnClickListener(view -> {
+            Intent intent = new Intent(this, AddFaceActivity.class);
+            startActivity(intent);
+        });
+
+
     }
 }

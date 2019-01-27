@@ -1,10 +1,9 @@
 package com.g7.mn.etmaen_g7;
 
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 
-public class VerifyActivity extends AppCompatActivity  {
-
+public class VerifyActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -12,5 +11,3 @@ public class VerifyActivity extends AppCompatActivity  {
         setContentView(R.layout.verify_face_layout);
     }
 }
-
-
