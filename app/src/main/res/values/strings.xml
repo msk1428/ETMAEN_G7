@@ -8,7 +8,7 @@
     <string name="verify" translatable="true">Verify Person</string>
     <string name="add_face" translatable="true">Add new face</string>
     <string name="error_name" translatable="true">Name is required</string>
-    <string name="error_contact_number" translatable="true">Contact number is required</string>
+    <string name="error_contact_number" translatable="true">Contact number is required like this +966XXXXXXXXX</string>
     <string name="uploadImages" translatable="true">Set your image</string>
     <string name="msg_loading" translatable="true">Loading…</string>
     <string name="create" translatable="true">Create Person</string>
