@@ -31,4 +31,5 @@
     <string name="record_deleted_success" translatable="true">record deleted successfully</string>
     <string name="error_deleting" translatable="true">error deleting record</string>
     <string name="successfully_created" translatable="true">successfully created</string>
+
 </resources>
