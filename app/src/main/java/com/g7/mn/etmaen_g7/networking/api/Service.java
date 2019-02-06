@@ -3,6 +3,8 @@ package com.g7.mn.etmaen_g7.networking.api;
 import com.g7.mn.etmaen_g7.AddFaceActivity;
 import com.g7.mn.etmaen_g7.model.AddFaceResponse;
 import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
+import com.g7.mn.etmaen_g7.model.FindSimilar;
+import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
 import com.g7.mn.etmaen_g7.networking.Routes;
 
 import java.util.List;
@@ -22,4 +24,7 @@ public interface Service {
 
     @POST(Routes.DETECT_FACE)
     Call<List<DetectFaceResponse>> detectFace(@Query("returnFaceId") Boolean returnFaceId, @Query("returnFaceLandmarks") Boolean returnFaceLandmarks, @Body RequestBody photo);
+
+    @POST(Routes.FIND_SIMILAR)
+    Call<List<FindSimilarResponse>> fetchSimilar(@Body FindSimilar findSimilar) ;
 }

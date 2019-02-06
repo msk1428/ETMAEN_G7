@@ -2,6 +2,7 @@ package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,6 +32,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.g7.mn.etmaen_g7.database.AddEntry;
 import com.g7.mn.etmaen_g7.model.AddFaceResponse;
+import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
+import com.g7.mn.etmaen_g7.model.FindSimilar;
+import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
 import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
 import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
@@ -41,7 +45,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -88,12 +94,16 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     ProgressBar progress;
     private static final int CAMERA_PIC_REQUEST = 1111;
     private static final int REQUEST_PICK_PHOTO = 2;
-    private String postPath, path, mediaPath;
+    private String postPath, path, mediaPath,username ,phonenumber, faceId;
     private String mImageFileLocation= "" ;
     private Uri fileUri;
     private static final String POST_PATH = "post_path";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private static final String TAG = AddFaceActivity.class.getSimpleName();
+    private ProgressDialog pDialog;
+    private String[] uploadImages;
+    private int[] itemIds ;
+
 
 
 
@@ -109,6 +119,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         }
         selectImage.setOnClickListener(this);
         button_upLoad.setOnClickListener(this);
+        uploadImages = new String[] {getString(R.string.pick_gallery),getString(R.string.click_camera),getString(R.string.remove_image)} ;
+        itemIds = new int[]{0, 1, 2};
     }
 
     @Override
@@ -149,11 +161,12 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+
     private void launchImagePicker() {
         new MaterialDialog.Builder(this)
             .title(R.string.uploadImages)
-            .items(R.array.uploadImages)
-            .itemsIds(R.array.itemIds)
+            .items(uploadImages)
+            .itemsIds(itemIds)
             .itemsCallback((dialog, view, which, text) ->{
                 switch (which){
                     case 0:
@@ -332,14 +345,114 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             name.setError(getString(R.string.error_contact_number));
 
         } else {
-            String name = input_name.getText().toString().trim();
-            String contact_number = input_contact_number.getText().toString().trim();
-
-           addFace(name, contact_number);
+             username = input_name.getText().toString().trim();
+             phonenumber = input_contact_number.getText().toString().trim();
+           addFace();
         }
     }
 
+    private void addFace() {
+        showProgress();
+        if (postPath == null || postPath.isEmpty()) {
+            hideProgress();
+            return;
+        }
+        try {
+            InputStream in = new FileInputStream(new File(postPath));
+            byte[] buf;
+            try {
+                buf = new byte[in.available()];
+                while (in.read(buf) != -1);
+                RequestBody requestBody = RequestBody
+                        .create(MediaType.parse("application/octet-stream"), buf);
+
+                Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+                Call<List<DetectFaceResponse>> call = userService.detectFace(Boolean.TRUE, Boolean.FALSE,  requestBody);
+
+                call.enqueue(new Callback<List<DetectFaceResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<DetectFaceResponse>> call, Response<List<DetectFaceResponse>> response) {
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                List<DetectFaceResponse> addFaceResponse = response.body();
+                                if (!addFaceResponse.isEmpty()) {
+                                    faceId = addFaceResponse.get(0).getFaceId();
+                                    findFace();
+                                } else {
+                                    hideProgress();
+                                    Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            hideProgress();
+                            Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<DetectFaceResponse>> call, Throwable t) {
+                        hideProgress();
+                        Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (IOException e) {
+                hideProgress();
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            hideProgress();
+            e.printStackTrace();
+        }
+    }
+    private FindSimilar findSimilar() {
+        FindSimilar findSimilar = new FindSimilar();
+        if (faceId != null) {
+            findSimilar.setFaceId(faceId);
+            findSimilar.setFaceListId("etmaenfacelist");
+            findSimilar.setMaxNumOfCandidatesReturned(1);
+            findSimilar.setMode("matchPerson");
+        }
+
+        return findSimilar;
+    }
+
+    private void findFace() {
+        Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+        Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar());
+
+        call.enqueue(new Callback<List<FindSimilarResponse>>() {
+            @Override
+            public void onResponse(Call<List<FindSimilarResponse>> call, Response<List<FindSimilarResponse>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        List<FindSimilarResponse> findSimilarResponses = response.body();
+                        if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
+                            addFace(username,phonenumber);
+                        } else {
+                            hideProgress();
+                            Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }else {
+                    hideProgress();
+                    Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
+                hideProgress();
+                Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
     private void addFace(String name, String phonenumber) {
+
         showProgress();
         if(postPath == null || postPath.isEmpty()){
             hideProgress();
@@ -369,12 +482,12 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                                 //final AddEntry imageEntry = new AddEntry(name, phonenumber, persistedId, postPath, "");
                                 // AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertClassifier(imageEntry));
                                 //emptyInputEditText();
-                                //hideProgress();
-                                //Toast.makeText(AddFaceActivity.this, R.string.successfully_created, Toast.LENGTH_SHORT).show();
+                                hideProgress();
+                                Toast.makeText(AddFaceActivity.this, R.string.successfully_created, Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             hideProgress();
-                            Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         }
                     }
 

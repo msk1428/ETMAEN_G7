@@ -26,11 +26,6 @@ public class DataGenerator {
             .cache(null);
 
     private static Gson gson = new GsonBuilder()
-            .enableComplexMapKeySerialization()
-            .serializeNulls()
-            .setDateFormat(DateFormat.LONG)
-            .setPrettyPrinting()
-            .setVersion(1.0)
             .create();
 
     private static Retrofit.Builder builder = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson));

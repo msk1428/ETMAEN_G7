@@ -22,6 +22,7 @@
     <string name="select_image" translatable="true">please select an image</string>
     <string name="permission_denied" translatable="true">Permission denied, the permissions are very important for the apps usage</string>
     <string name="sorry_error" translatable="true">Sorry, there was an error!</string>
+    <string name="error_no_face" translatable="false">Error Invalid Image, No face detected in the image</string>
     <string name="error_creation" translatable="true">error creation</string>
     <string name="no_face_matching" translatable="true">no face matching from records</string>
     <string name="person_found" translatable="true">person found</string>
@@ -31,5 +32,11 @@
     <string name="record_deleted_success" translatable="true">record deleted successfully</string>
     <string name="error_deleting" translatable="true">error deleting record</string>
     <string name="successfully_created" translatable="true">successfully created</string>
-
+    <string name="alrady_exist" translatable="false">error the face already exist </string>
+    <string name="pick_gallery" translatable="false">Pick from gallery</string>
+    <string name="click_camera" translatable="false">Click from camera</string>
+    <string name="remove" translatable="false">Remove image</string>
+    <string name="gallery_image" translatable="false">gallery_image</string>
+    <string name="camera_image" translatable="false">camera_image</string>
+    <string name="remove_image" translatable="false">remove_image</string>
 </resources>
