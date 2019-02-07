@@ -92,7 +92,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
     @BindView(R.id.progress)
     ProgressBar progress;
-    private static final int CAMERA_PIC_REQUEST = 1111;
+    private static final int CAMERA_PIC_REQUEST = 1;
     private static final int REQUEST_PICK_PHOTO = 2;
     private String postPath, path, mediaPath,username ,phonenumber, faceId;
     private String mImageFileLocation= "" ;
@@ -120,7 +120,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         selectImage.setOnClickListener(this);
         button_upLoad.setOnClickListener(this);
         uploadImages = new String[] {getString(R.string.pick_gallery),getString(R.string.click_camera),getString(R.string.remove_image)} ;
-        itemIds = new int[]{0, 1, 2};
+        itemIds= new int[]{0, 1, 2};
     }
 
     @Override
