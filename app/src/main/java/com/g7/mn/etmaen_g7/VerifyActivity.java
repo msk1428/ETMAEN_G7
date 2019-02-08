@@ -1,20 +1,20 @@
 package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.github.florent37.rxgps.RxGps;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,10 +35,12 @@ import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
-public class VerifyActivity extends AppCompatActivity  implements View.OnClickListener {//1 implement onclick then creat method onclick
+public class VerifyActivity extends BaseActivity implements View.OnClickListener {//1 implement onclick then creat method onclick
 // 2 varibals
 
     @BindView(R.id.selectImage)
@@ -47,6 +50,11 @@ public class VerifyActivity extends AppCompatActivity  implements View.OnClickLi
     Button button_verify;
     @BindView(R.id.image_header)
     ImageView image_header;
+
+    @BindView(R.id.tv_current_address)
+    TextView  addressText;
+    @BindView(R.id.tv_current_location)
+    TextView  locationText;
 
 
     private String[] uploadImages;
@@ -59,7 +67,7 @@ public class VerifyActivity extends AppCompatActivity  implements View.OnClickLi
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private static final String TAG = VerifyActivity.class.getSimpleName();
     private static final String POST_PATH = "post_path";
-
+    private  RxGps rxGps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +83,76 @@ public class VerifyActivity extends AppCompatActivity  implements View.OnClickLi
         // 5-active each button or activity + 9 - filling array
         seLectImage.setOnClickListener(this);
         button_verify.setOnClickListener(this);
-        uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove_image)};
+        uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
         itemIds = new int[]{0, 1, 2};
 
+       //Location
+        rxGps = new RxGps(this);//no need to primission
+        getLocation();
+        getStreet();
+
+
     }
+
+
+    @SuppressLint("CheckResult")
+     private void getLocation() {
+
+        rxGps.lastLocation()
+
+                .doOnSubscribe(this::addDisposable)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+
+                .subscribe(location -> {
+                    locationText.setText(location.getLatitude() + ", " + location.getLongitude());
+                }, throwable -> {
+                    if (throwable instanceof RxGps.PermissionException) {
+                        displayError(throwable.getMessage());
+                    } else if (throwable instanceof RxGps.PlayServicesNotAvailableException) {
+                        displayError(throwable.getMessage());
+                    }
+                });
+
+    }
+
+    @SuppressLint("CheckResult")
+    private void getStreet() {
+        rxGps.locationLowPower()
+                .flatMapMaybe(rxGps::geocoding)
+                .doOnSubscribe(this::addDisposable)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(address ->{
+                    addressText.setText(getAddressText(address));
+                }, throwable -> {
+                    if (throwable instanceof RxGps.PermissionException) {
+                        displayError(throwable.getMessage());
+                    } else if (throwable instanceof RxGps.PlayServicesNotAvailableException) {
+                        displayError(throwable.getMessage());
+                    }
+                });
+    }
+
+    private String  getAddressText(Address address) {
+    String addressText ="";
+    final int maxAddressLineIndex = address.getMaxAddressLineIndex();
+
+    for(int i =0 ; i<=maxAddressLineIndex;i++){
+        addressText +=address.getAddressLine(i);
+        if (i != maxAddressLineIndex){
+            addressText += "\n";
+        }
+    }
+    return addressText;
+    }
+
+    private void displayError(String message) {
+
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+    }
+
 
     @Override
     public void onClick(View v) {

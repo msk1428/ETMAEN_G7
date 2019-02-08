@@ -1,15 +1,14 @@
 package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,7 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -30,14 +28,12 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.g7.mn.etmaen_g7.database.AddEntry;
 import com.g7.mn.etmaen_g7.model.AddFaceResponse;
 import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
 import com.g7.mn.etmaen_g7.model.FindSimilar;
 import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
 import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
-import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +41,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -92,6 +87,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
     @BindView(R.id.progress)
     ProgressBar progress;
+
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int REQUEST_PICK_PHOTO = 2;
     private String postPath, path, mediaPath,username ,phonenumber, faceId;
@@ -119,7 +115,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         }
         selectImage.setOnClickListener(this);
         button_upLoad.setOnClickListener(this);
-        uploadImages = new String[] {getString(R.string.pick_gallery),getString(R.string.click_camera),getString(R.string.remove_image)} ;
+        uploadImages = new String[] {getString(R.string.pick_gallery),getString(R.string.click_camera),getString(R.string.remove)} ;
         itemIds= new int[]{0, 1, 2};
     }
 
