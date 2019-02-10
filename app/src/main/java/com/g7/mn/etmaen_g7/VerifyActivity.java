@@ -2,6 +2,7 @@ package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -24,12 +25,21 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
+import com.g7.mn.etmaen_g7.model.FindSimilar;
+import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
+import com.g7.mn.etmaen_g7.networking.api.Service;
+import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
 import com.github.florent37.rxgps.RxGps;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -37,8 +47,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
+import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
+import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
 
 public class VerifyActivity extends BaseActivity implements View.OnClickListener {//1 implement onclick then creat method onclick
 // 2 varibals
@@ -61,12 +79,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private int[] itemIds;
     private static final int CAMERA_PIC_REQUEST = 1;//any number for request
     private static final int REQUEST_PICK_PHOTO = 2;//any number for request
-    private String postPath, path,mediaPath;
+    private String postPath, path,mediaPath,faceId;
     private String mImageFileLocation = "";
     private Uri fileUri;
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private static final String TAG = VerifyActivity.class.getSimpleName();
     private static final String POST_PATH = "post_path";
+    private ProgressDialog pDialog;
     private  RxGps rxGps;
 
     @Override
@@ -85,6 +104,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         button_verify.setOnClickListener(this);
         uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
         itemIds = new int[]{0, 1, 2};
+        //pDilog
+        initpDiloag();
 
        //Location
         rxGps = new RxGps(this);//no need to primission
@@ -93,6 +114,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
 
     }
+
 
 
     @SuppressLint("CheckResult")
@@ -172,12 +194,17 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                 break;
 
             case R.id.button_verify:
+                if (postPath == null) {
+                    Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
+                }else{
+                addface();}//if press button verify they chack the postpath then go to API
                 break;
 
         }
 
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -367,4 +394,129 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         path = savedInstanceState.getString(POST_PATH);
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
+    private void addface() {
+        showpDialog();
+        if(postPath == null || postPath.isEmpty()){
+            hidepDialog();
+            return;
+        }
+        try{
+            InputStream in = new FileInputStream(new File(postPath));
+            byte[] buf;
+            try{
+                buf = new byte[in.available()];//retun byts from inputstram obj
+                while(in.read(buf) != -1);
+                RequestBody requestBody= RequestBody
+                        .create(MediaType.parse("application/octet-stream"),buf);
+                Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
+                Call<List<DetectFaceResponse>> call= userService.detectFace(Boolean.TRUE,Boolean.FALSE, requestBody);
+                call.enqueue(new Callback<List<DetectFaceResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<DetectFaceResponse>> call, Response<List<DetectFaceResponse>> response) {
+                            if (response.isSuccessful()){
+                                if (response.body() != null) {
+                                    List<DetectFaceResponse> addFaceResponse = response.body();
+                                    if (!response.body().isEmpty()) {
+                                        faceId = addFaceResponse.get(0).getFaceId();
+                                        getStreet();
+                                        //refreshActivity();
+                                        findFace();
+                                    } else {
+                                        hidepDialog();
+                                        Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            } else {
+
+                                hidepDialog();
+                                Toast.makeText( VerifyActivity.this,R.string.error_creation,Toast.LENGTH_SHORT).show();
+                            }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<DetectFaceResponse>> call, Throwable t) {
+                        hidepDialog();
+                        Toast.makeText(VerifyActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }catch (IOException e) {
+                hidepDialog();
+                e.printStackTrace();
+            }
+
+        }catch (FileNotFoundException e) {
+            hidepDialog();
+            e.printStackTrace();
+        }
+    }
+
+    private FindSimilar findSimilar() {
+        FindSimilar findSimilar = new FindSimilar();
+        if (faceId != null) {
+            findSimilar.setFaceId(faceId);
+            findSimilar.setFaceListId(FACE_LIST_ID);
+            findSimilar.setMaxNumOfCandidatesReturned(1);
+            findSimilar.setMode(MODE);
+        }
+
+        return findSimilar;
+    }
+    private void findFace() {
+
+        Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
+        Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar());
+
+        call.enqueue(new Callback<List<FindSimilarResponse>>() {
+            @Override
+            public void onResponse(Call<List<FindSimilarResponse>> call, Response<List<FindSimilarResponse>> response) {
+                if(response.isSuccessful()){
+                    if(response.body() !=null) {
+                        List<FindSimilarResponse> findSimilarResponses = response.body();
+                        if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
+                            hidepDialog();
+                            Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                        } else {
+                            String persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
+                           // fetchDetails(persistedFaceId);
+                            hidepDialog();
+                            Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }else {
+                    hidepDialog();
+                    Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
+                hidepDialog();
+                Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+/**
+  pDialog is verbail ,
+ 1- identify as verbal ,
+ 2- call function initiall at oncreat ,
+ 3- modify functions of pDialog ,
+**/
+    private void initpDiloag() { //3- inital step
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage(getString(R.string.msg_loading));
+        pDialog.setCancelable(true);
+    }
+
+    protected void showpDialog() { //show function
+        if (!pDialog.isShowing())     pDialog.show();
+    }
+
+    protected void hidepDialog() {//hidfunction
+
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }
+
 }

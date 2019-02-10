@@ -1,13 +1,9 @@
 package com.g7.mn.etmaen_g7.networking.generator;
 
-import android.os.Build;
-
 import com.g7.mn.etmaen_g7.BuildConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.security.PublicKey;
-import java.text.DateFormat;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
