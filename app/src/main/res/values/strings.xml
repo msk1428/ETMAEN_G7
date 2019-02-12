@@ -18,7 +18,7 @@
     <string name="resend_message" translatable="true">RESEND MESSAGE</string>
     <string name="added_items" translatable="true">Added items</string>
     <string name="current_location" translatable="true">Current location</string>
-    <string name="current_address" translatable="false">Current address</string>
+    <string name="current_address" translatable="true">Current address</string>
     <string name="not_available" translatable="true">Not available</string>
     <string name="select_image" translatable="true">please select an image</string>
     <string name="permission_denied" translatable="true">Permission denied, the permissions are very important for the apps usage</string>
@@ -33,10 +33,10 @@
     <string name="record_deleted_success" translatable="true">record deleted successfully</string>
     <string name="error_deleting" translatable="true">error deleting record</string>
     <string name="successfully_created" translatable="true">successfully created</string>
-    <string name="alrady_exist" translatable="false">error the face already exist </string>
-    <string name="pick_gallery" translatable="false">Pick from gallery</string>
-    <string name="click_camera" translatable="false">Click from camera</string>
-    <string name="remove" translatable="false">Remove image</string>
+    <string name="alrady_exist" translatable="true">error the face already exist </string>
+    <string name="pick_gallery" translatable="true">Pick from gallery</string>
+    <string name="click_camera" translatable="true">Click from camera</string>
+    <string name="remove" translatable="true">Remove image</string>
 
 
 </resources>
