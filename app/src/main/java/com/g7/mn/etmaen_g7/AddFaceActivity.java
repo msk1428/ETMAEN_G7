@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -123,7 +124,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_upload:
-                if (postPath == null) {
+                if (postPath == null || postPath.isEmpty()) {
                     Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
                 } else {
 
@@ -376,7 +377,10 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                                     findFace();
                                 } else {
                                     hideProgress();
-                                    Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                                    showDialog(getResources().getString(R.string.error_no_face));
+
+
+                                    //Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         } else {
@@ -427,7 +431,10 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                             addFace(username,phonenumber);
                         } else {
                             hideProgress();
-                            Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+                            showDialog(getResources().getString(R.string.alrady_exist));
+
+
+                            //Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -477,9 +484,11 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
                                 //final AddEntry imageEntry = new AddEntry(name, phonenumber, persistedId, postPath, "");
                                 // AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertClassifier(imageEntry));
-                                //emptyInputEditText();
+                                showDialog(getResources().getString(R.string.successfully_created));
+
+                                emptyInputEditText();
                                 hideProgress();
-                                Toast.makeText(AddFaceActivity.this, R.string.successfully_created, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(AddFaceActivity.this, R.string.successfully_created, Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             hideProgress();
@@ -503,6 +512,39 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             hideProgress();
             e.printStackTrace();
         }
+    }
+
+    private void showDialog(String text) {
+        boolean wrapInScrollView = true;
+        MaterialDialog dialog = new MaterialDialog.Builder(AddFaceActivity.this)
+
+                .title("Response")
+                .customView(R.layout.custom, wrapInScrollView)
+                .positiveText("OK")
+                .onPositive((dialog1, which) -> {
+                    dialog1.dismiss();
+                })
+                .show();
+        View view = dialog.getCustomView();
+
+        if (view != null) {
+            TextView verifiedResponse = view.findViewById(R.id.verifiedResponse);
+
+            verifiedResponse.setText(text);
+        }
+
+    }
+
+    private void emptyInputEditText() {
+        input_name.setText("");
+        input_contact_number.setText("");
+        image_header.setImageResource(R.color.colorPrimary);
+        postPath.equals(null);
+        path.equals(null);
+    }
+
+    private void refreshActivity(){
+        recreate();
     }
 
     private void showProgress() {
