@@ -15,16 +15,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.g7.mn.etmaen_g7.utlis.Constants.HEADER_NAME;
 
 public class DataGenerator {
-    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
+    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder() // Measures connection time
             .readTimeout(90, TimeUnit.SECONDS)
             .connectTimeout(90,TimeUnit.SECONDS)
             .writeTimeout(90,TimeUnit.SECONDS)
             .cache(null);
 
-    private static Gson gson = new GsonBuilder()
+    private static Gson gson = new GsonBuilder() //library connect with internet
             .create();
 
-    private static Retrofit.Builder builder = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson));
+    private static Retrofit.Builder builder = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson));//Retrofit dealing with (addFace,delet,detect )
+
 
 
     public static <S> S creatService (Class<S> serviceClass,String apikey, String baseUrl){
@@ -38,7 +39,7 @@ public class DataGenerator {
                  .build();
          return chain.proceed(request);
      });
-     if (BuildConfig.DEBUG){
+     if (BuildConfig.DEBUG){ //fix error such as connection
          HttpLoggingInterceptor logging = new HttpLoggingInterceptor()
                  .setLevel(HttpLoggingInterceptor.Level.BODY);
 

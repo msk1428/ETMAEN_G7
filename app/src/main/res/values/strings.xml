@@ -37,6 +37,8 @@
     <string name="pick_gallery" translatable="true">Pick from gallery</string>
     <string name="click_camera" translatable="true">Click from camera</string>
     <string name="remove" translatable="true">Remove image</string>
+    <string name="response" translatable="false">Response</string>
+    <string name="ok" translatable="false">OK</string>
 
 
 </resources>

@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -59,7 +58,7 @@ import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
 
 public class VerifyActivity extends BaseActivity implements View.OnClickListener {//1 implement onclick then creat method onclick
-// 2 varibals
+//  varibals
 
     @BindView(R.id.selectImage)
     ImageView seLectImage;
@@ -170,8 +169,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void displayError(String message) {
-
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        showDialog(message);
+       // Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -195,7 +194,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
             case R.id.button_verify:
                 if (postPath == null) {
-                    Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
+                    showDialog(getResources().getString(R.string.select_image));
+                   // Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
                 }else{
                 addface();}//if press button verify they chack the postpath then go to API
                 break;
@@ -213,7 +213,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) { // if all permissionm okay go to launchImagePicker();
                 launchImagePicker();
             } else {
-                Toast.makeText(VerifyActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+                showDialog(getResources().getString(R.string.permission_denied));
+                //Toast.makeText(VerifyActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
 
             }
         }
@@ -248,12 +249,12 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private void captureImage() {
         if (Build.VERSION.SDK_INT > 12) {
             Intent callCameraApplicationIntent = new Intent();
-            callCameraApplicationIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+            callCameraApplicationIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);//enable to go the camera app and return it
 
             File photoFile = null;
 
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile();//take pic and put it in file
 
             } catch (IOException e) {
                 Logger.getAnonymousLogger().info("Exception error in generating the file");
@@ -262,13 +263,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             Uri outputUri = FileProvider.getUriForFile(
                     this, BuildConfig.APPLICATION_ID + ".provider",
                     photoFile);
-            callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
+            callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);//EXTRA_OUTPUT to control where this image will be written
 
             callCameraApplicationIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             Logger.getAnonymousLogger().info("Calling the camera App by intent");
 
-            startActivityForResult(callCameraApplicationIntent, CAMERA_PIC_REQUEST);
+            startActivityForResult(callCameraApplicationIntent, CAMERA_PIC_REQUEST);// need function onrequest
         } else {
             Intent callCameraApplicationIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -340,10 +341,10 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK){ //the user choose pic
             if(requestCode == REQUEST_PICK_PHOTO){
                 if(data != null){
-                    // Get the Image from data
+                    // Get the data of Image and put in selectedImage
                     Uri selectedImage = data.getData();
                     String [] filePathColumn = {MediaStore.Images.Media.DATA};
 
@@ -352,7 +353,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     cursor.moveToFirst();
 
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    mediaPath = cursor.getString(columnIndex);
+                    mediaPath = cursor.getString(columnIndex); //getString() to read data from cursor first identify columnIndex
+
                     // Set the Image in ImageView for Previewing the Media
                     image_header.setImageBitmap(BitmapFactory.decodeFile(mediaPath));
                     cursor.close();
@@ -373,12 +375,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             }
         }
         else if (resultCode != RESULT_CANCELED) {
-            Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
+            showDialog(getResources().getString(R.string.sorry_error));
+           // Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(Bundle outState) {//is a method used to store data before pausing the activity.
         super.onSaveInstanceState(outState);
 
         outState.putString(POST_PATH, path);
@@ -387,27 +390,29 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {// is method used to retrieve that data back.
         super.onRestoreInstanceState(savedInstanceState);
 
         // get the file url
         path = savedInstanceState.getString(POST_PATH);
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
+
     private void addface() {
         showpDialog();
         if(postPath == null || postPath.isEmpty()){
             hidepDialog();
-            return;
+            showDialog(getResources().getString(R.string.select_image));
+            return; // stop the function if return nothing .
         }
-        try{
+        try{  // each try have catch for fix the error
             InputStream in = new FileInputStream(new File(postPath));
             byte[] buf;
             try{
                 buf = new byte[in.available()];//retun byts from inputstram obj
-                while(in.read(buf) != -1);
+                while(in.read(buf) != -1);  // -1 meaning no data
                 RequestBody requestBody= RequestBody
-                        .create(MediaType.parse("application/octet-stream"),buf);
+                        .create(MediaType.parse("application/octet-stream"),buf);  //send header(content typ + key) + pic
                 Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
                 Call<List<DetectFaceResponse>> call= userService.detectFace(Boolean.TRUE,Boolean.FALSE, requestBody);
                 call.enqueue(new Callback<List<DetectFaceResponse>>() {
@@ -419,24 +424,26 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                     if (!response.body().isEmpty()) {
                                         faceId = addFaceResponse.get(0).getFaceId();
                                         getStreet();
-                                        //refreshActivity();
                                         findFace();
                                     } else {
                                         hidepDialog();
-                                        Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                                        showDialog(getResources().getString(R.string.error_no_face));
+                                       // Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             } else {
 
                                 hidepDialog();
-                                Toast.makeText( VerifyActivity.this,R.string.error_creation,Toast.LENGTH_SHORT).show();
+                                showDialog(getResources().getString(R.string.error_creation));
+                               // Toast.makeText( VerifyActivity.this,R.string.error_creation,Toast.LENGTH_SHORT).show();
                             }
                     }
 
                     @Override
                     public void onFailure(Call<List<DetectFaceResponse>> call, Throwable t) {
                         hidepDialog();
-                        Toast.makeText(VerifyActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                        showDialog(getResources().getString(R.string.error_creation));
+                        //Toast.makeText(VerifyActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
                     }
                 });
             }catch (IOException e) {
@@ -464,7 +471,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private void findFace() {
 
         Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
-        Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar());
+        Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar()); // her don't need to requestBody
 
         call.enqueue(new Callback<List<FindSimilarResponse>>() {
             @Override
@@ -474,30 +481,39 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
                             hidepDialog();
-                            Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                            showDialog(getResources().getString(R.string.error_no_face));
+                            //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         } else {
                             String persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
-                           // fetchDetails(persistedFaceId);
+                            //fetchDetails(persistedFaceId);
                             hidepDialog();
-                            Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
+                            showDialog(getResources().getString(R.string.person_found));
+                            emptyInput();
+                            //Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
                         }
 
                     }
                 }else {
                     hidepDialog();
-                    Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
+                    showDialog(getResources().getString(R.string.error_find_face));
+                  //  Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
                 hidepDialog();
-                Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
+                showDialog(getResources().getString(R.string.error_find_face));
+                //Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-/**
+    //SEND SMS
+
+
+
+    /**
   pDialog is verbail ,
  1- identify as verbal ,
  2- call function initiall at oncreat ,
@@ -509,6 +525,28 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         pDialog.setCancelable(true);
     }
 
+    private void showDialog(String text) {
+        boolean wrapInScrollView = true;
+        MaterialDialog dialog = new MaterialDialog.Builder(VerifyActivity.this)
+
+                .title(R.string.response)
+                .customView(R.layout.custom, wrapInScrollView)
+                .positiveText(R.string.ok)
+                .onPositive((dialog1, which) -> {
+                    dialog1.dismiss();
+                })
+                .show();
+        View view = dialog.getCustomView();
+
+        if (view != null) {
+            TextView verifiedResponse = view.findViewById(R.id.verifiedResponse);
+
+            verifiedResponse.setText(text);
+        }
+
+    }
+
+
     protected void showpDialog() { //show function
         if (!pDialog.isShowing())     pDialog.show();
     }
@@ -517,6 +555,12 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+    private void emptyInput() {
+
+        image_header.setImageResource(R.color.colorPrimary);
+        postPath.equals(null);
+        path.equals(null);
     }
 
 }

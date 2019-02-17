@@ -7,7 +7,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 @Entity
-public class AddEntry {//reference addentry
+public class VerifiedEntry {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -26,25 +26,26 @@ public class AddEntry {//reference addentry
     @ColumnInfo(name = "image")
     private String image;
 
+    @ColumnInfo(name = "address")
+    private String address;
 
 
     @Ignore
-    public AddEntry(String name, String phonenumber, String persistedid, String image ) {
+    public VerifiedEntry(String name, String phonenumber, String persistedid, String image, String address) {
         this.name = name;
         this.phonenumber = phonenumber;
         this.persistedid = persistedid;
         this.image = image;
-
+        this.address = address;
     }
-    //for  specific id
 
-    public AddEntry(int id, String name, String phonenumber, String persistedid, String image) {
+    public VerifiedEntry(int id, String name, String phonenumber, String persistedid, String image, String address) {
         this.id = id;
         this.name = name;
         this.phonenumber = phonenumber;
         this.persistedid = persistedid;
         this.image = image;
-
+        this.address = address;
     }
 
     public int getId() {
@@ -79,9 +80,9 @@ public class AddEntry {//reference addentry
 
     public String getImage() { return image; }
 
+    public void setAddress(String address) { this.address = address; }
 
+    public String getAddress() { return address; }
 
 }
-
-
 
