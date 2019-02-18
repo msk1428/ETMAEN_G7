@@ -18,7 +18,7 @@
     <string name="resend_message">إعادة الإرسال</string>
     <string name="added_items">الأشخاص المضافون</string>
     <string name="current_location">الموقع الحالي</string>
-    <string name="current_address" translatable="true">العنوان الحالي</string>
+    <string name="current_address" >العنوان الحالي</string>
     <string name="not_available">غير متاح</string>
     <string name="select_image">من فضلك اختار صورة</string>
     <string name="permission_denied">تم رفض الإذن ، تكون الأذونات مهمة جدًا لاستخدام التطبيقات</string>
@@ -32,8 +32,8 @@
     <string name= "record_deleted_success">تم حذف البيانات بنجاح</string>
     <string name="error_deleting">خطأ,في عملية حذف البيانات</string>
     <string name="successfully_created">تمت اضافة البيانات بنجاح</string>
-    <string name="alrady_exist" translatable="true">خطأ المعلومات مخزنة مسبقا </string>
-    <string name="pick_gallery" translatable="true">من الاستديو</string>
-    <string name="click_camera" translatable="true">من الكامير </string>
-    <string name="remove" translatable="true">محو الصورة</string>
+    <string name="alrady_exist" >خطأ المعلومات مخزنة مسبقا </string>
+    <string name="pick_gallery">">من الاستديو</string>
+    <string name="click_camera" >من الكامير </string>
+    <string name="remove" >محو الصورة</string>
 </resources>
