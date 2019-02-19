@@ -85,7 +85,7 @@ public class AddClassifierAdapter extends RecyclerView.Adapter<AddClassifierAdap
         notifyItemInserted(position);
     }
 
-    public interface ItemClickListener { // if press one of item open onther page
+    public interface ItemClickListener { // if press one of item open onther page ??
         void onItemClickListener(int itemId);
     }
     // Inner class for creating ViewHolders  1- on click

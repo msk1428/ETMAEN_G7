@@ -63,7 +63,7 @@ import retrofit2.Response;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 
-public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener{
+public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener{ //1 on adapter
     @BindView(R.id.main_content)
     CoordinatorLayout main_content;
 
@@ -102,10 +102,10 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     private static final String POST_PATH = "post_path";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private static final String TAG = AddFaceActivity.class.getSimpleName();
-    private AppDatabase mDb;
+    private AppDatabase mDb; //2 on adapter
     private String[] uploadImages;
     private int[] itemIds ;
-    private AddClassifierAdapter adapter;
+    private AddClassifierAdapter adapter; //3
 
 
 

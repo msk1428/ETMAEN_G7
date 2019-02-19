@@ -29,7 +29,7 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
         mItemClickListener = listener;
     }
 
-
+//2 creat method
     @NonNull
     @Override //5
     public ClassifierViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {// call item page
@@ -78,7 +78,7 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
     public interface ItemClickListener { //3
         void onItemClickListener(int itemId);
     }
-    // 1-Inner class for creating ViewHolders
+    // 1-Inner class for creating ViewHolders -->pattern enables you to access each list item view without the need for the look up,
     public class ClassifierViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView name;

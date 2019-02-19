@@ -3,6 +3,7 @@ package com.g7.mn.etmaen_g7;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,6 +17,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,11 +27,15 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.g7.mn.etmaen_g7.adapter.AddClassifierAdapter;
+import com.g7.mn.etmaen_g7.database.AddEntry;
+import com.g7.mn.etmaen_g7.database.AppDatabase;
 import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
 import com.g7.mn.etmaen_g7.model.FindSimilar;
 import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
 import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
+import com.g7.mn.etmaen_g7.viewmodel.MainViewModel;
 import com.github.florent37.rxgps.RxGps;
 
 import java.io.File;
@@ -57,7 +64,7 @@ import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
 
-public class VerifyActivity extends BaseActivity implements View.OnClickListener {//1 implement onclick then creat method onclick
+public class VerifyActivity extends BaseActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener {//1 implement onclick then creat method onclick
 //  varibals
 
     @BindView(R.id.selectImage)
@@ -73,6 +80,9 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     @BindView(R.id.tv_current_location)
     TextView  locationText;
 
+    @BindView(R.id.recycler_view)
+    RecyclerView recycler_view;
+
 
     private String[] uploadImages;
     private int[] itemIds;
@@ -86,6 +96,9 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private static final String POST_PATH = "post_path";
     private ProgressDialog pDialog;
     private  RxGps rxGps;
+    private AppDatabase mDb;
+    private AddClassifierAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +116,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         button_verify.setOnClickListener(this);
         uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
         itemIds = new int[]{0, 1, 2};
-        //pDilog
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
+        adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
+        recycler_view.setAdapter(adapter);
+
+
+        setupViewModel();
         initpDiloag();
 
        //Location
@@ -113,7 +132,12 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
 
     }
-
+    private void setupViewModel() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getTasks().observe(this, (List<AddEntry> taskEntries) -> {
+            adapter.setTasks(taskEntries);
+        });
+    }
 
 
     @SuppressLint("CheckResult")
@@ -563,4 +587,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         path.equals(null);
     }
 
+    @Override
+    public void onItemClickListener(int itemId) {
+
+    }
 }
