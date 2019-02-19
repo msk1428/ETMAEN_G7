@@ -20,6 +20,7 @@
     <string name="current_location">الموقع الحالي</string>
     <string name="current_address" >العنوان الحالي</string>
     <string name="not_available">غير متاح</string>
+    <string name="error_no_face" >خطأ الصورة غير صالحة ، لم يتم اكتشاف أي وجه في الصورة</string>
     <string name="select_image">من فضلك اختار صورة</string>
     <string name="permission_denied">تم رفض الإذن ، تكون الأذونات مهمة جدًا لاستخدام التطبيقات</string>
     <string name="sorry_error">نأسف,لقد تم العثور على خطأ!</string>

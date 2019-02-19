@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.g7.mn.etmaen_g7.adapter.AddClassifierAdapter;
 import com.g7.mn.etmaen_g7.database.AddEntry;
 import com.g7.mn.etmaen_g7.database.AppDatabase;
 import com.g7.mn.etmaen_g7.model.AddFaceResponse;
@@ -61,7 +63,7 @@ import retrofit2.Response;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 
-public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener{
     @BindView(R.id.main_content)
     CoordinatorLayout main_content;
 
@@ -87,7 +89,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     Button button_upLoad;
 
     @BindView(R.id.recycler_view)
-    RecyclerView recycLer_view;
+    RecyclerView recycler_view;
 
     @BindView(R.id.progress)
     ProgressBar progress;
@@ -103,7 +105,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     private AppDatabase mDb;
     private String[] uploadImages;
     private int[] itemIds ;
-    //private AddClassifierAdapter adapter;
+    private AddClassifierAdapter adapter;
 
 
 
@@ -118,20 +120,37 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         if (getSupportActionBar() != null) {//back boutton
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        selectImage.setOnClickListener(this);
-        button_upLoad.setOnClickListener(this);
-        uploadImages = new String[] {getString(R.string.pick_gallery),getString(R.string.click_camera),getString(R.string.remove)} ;
-        itemIds= new int[]{0, 1, 2};
-        mDb = AppDatabase.getInstance(getApplicationContext());
+        if (savedInstanceState != null) {
+            if (path != null) {
+                path = savedInstanceState.getString(POST_PATH);
+                postPath = path;
+                Glide.with(this).load(path).into(image_header);
+            }
+        }
+
+            selectImage.setOnClickListener(this);
+            button_upLoad.setOnClickListener(this);
+            uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
+            itemIds = new int[]{0, 1, 2};
+            mDb = AppDatabase.getInstance(getApplicationContext());
+            recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
+            adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
+            recycler_view.setAdapter(adapter);
+
+
+        setupViewModel();
+
     }
+
 
 
     private void setupViewModel() {
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         viewModel.getTasks().observe(this, (List<AddEntry> taskEntries) -> {
-      // adapter.setTasks(taskEntries);
+            adapter.setTasks(taskEntries);
         });
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -579,4 +598,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         progress.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onItemClickListener(int itemId) {
+
+    }
 }
