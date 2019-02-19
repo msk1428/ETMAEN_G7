@@ -119,13 +119,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     @SuppressLint("CheckResult")
      private void getLocation() {
 
-        rxGps.lastLocation()
+        rxGps.lastLocation()// get the last location for client device
 
-                .doOnSubscribe(this::addDisposable)
+                .doOnSubscribe(this::addDisposable)//to tidier the code . Modifies the source so that it invokes the given action when it is subscribed from its subscribers.
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
 
-                .subscribe(location -> {
+                .subscribe(location -> { // msg about permission
                     locationText.setText(location.getLatitude() + ", " + location.getLongitude());
                 }, throwable -> {
                     if (throwable instanceof RxGps.PermissionException) {
@@ -162,7 +162,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     for(int i =0 ; i<=maxAddressLineIndex;i++){
         addressText +=address.getAddressLine(i);
         if (i != maxAddressLineIndex){
-            addressText += "\n";
+            addressText += "\n";// new line
         }
     }
     return addressText;

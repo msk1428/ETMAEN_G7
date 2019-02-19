@@ -18,13 +18,13 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy() { // when your activity is closing down ?? it called in the end
         compositeDisposable.clear();
         super.onDestroy();
     }
     public void addDisposable(Disposable disposable){
         this.compositeDisposable.add(disposable);
-    }
+    } ////write or add  current location
 
     public void showWay() {
 
