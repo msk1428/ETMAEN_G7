@@ -4,6 +4,7 @@ import com.g7.mn.etmaen_g7.model.AddFaceResponse;
 import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
 import com.g7.mn.etmaen_g7.model.FindSimilar;
 import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
+import com.g7.mn.etmaen_g7.model.ResponseGet;
 import com.g7.mn.etmaen_g7.networking.Routes;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -29,6 +31,9 @@ public interface Service {
 
     @POST(Routes.FIND_SIMILAR)
     Call<List<FindSimilarResponse>> fetchSimilar(@Body FindSimilar findSimilar) ;
+
+    @GET(Routes.GET_FACES + FACE_LIST_ID)
+    Call<List<ResponseGet>>  listface();
 
     @DELETE(Routes.DETECT_FACE + FACE_LIST_ID + "{persistedFaceId}")
     Call<Void> deleteFace(@Path("persistedFaceId") String persistedFaceId);

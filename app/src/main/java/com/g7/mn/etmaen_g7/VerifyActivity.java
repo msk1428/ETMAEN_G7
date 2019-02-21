@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -27,15 +28,18 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.g7.mn.etmaen_g7.adapter.AddClassifierAdapter;
-import com.g7.mn.etmaen_g7.database.AddEntry;
+import com.g7.mn.etmaen_g7.adapter.VerifyAdapter;
 import com.g7.mn.etmaen_g7.database.AppDatabase;
+import com.g7.mn.etmaen_g7.database.VerifiedEntry;
 import com.g7.mn.etmaen_g7.model.DetectFaceResponse;
 import com.g7.mn.etmaen_g7.model.FindSimilar;
 import com.g7.mn.etmaen_g7.model.FindSimilarResponse;
+import com.g7.mn.etmaen_g7.model.PersistedFace;
+import com.g7.mn.etmaen_g7.model.ResponseGet;
 import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
-import com.g7.mn.etmaen_g7.viewmodel.MainViewModel;
+import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
+import com.g7.mn.etmaen_g7.viewmodel.VerifyViewModel;
 import com.github.florent37.rxgps.RxGps;
 
 import java.io.File;
@@ -64,7 +68,7 @@ import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
 
-public class VerifyActivity extends BaseActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener {//1 implement onclick then creat method onclick
+public class VerifyActivity extends BaseActivity implements View.OnClickListener , VerifyAdapter.ItemClickListener {//1 implement onclick then creat method onclick
 //  varibals
 
     @BindView(R.id.selectImage)
@@ -97,7 +101,9 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private ProgressDialog pDialog;
     private  RxGps rxGps;
     private AppDatabase mDb;
-    private AddClassifierAdapter adapter;
+    private VerifyAdapter adapter;
+    private String persistedFaceId;
+    private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
 
 
     @Override
@@ -118,7 +124,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         itemIds = new int[]{0, 1, 2};
         mDb = AppDatabase.getInstance(getApplicationContext());
         recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
-        adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
+        adapter = new VerifyAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
         recycler_view.setAdapter(adapter);
 
 
@@ -133,10 +139,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
     }
     private void setupViewModel() {
-        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getTasks().observe(this, (List<AddEntry> taskEntries) -> {
-            adapter.setTasks(taskEntries);
-        });
+        VerifyViewModel viewModel = ViewModelProviders.of(this).get(VerifyViewModel.class);
+        viewModel.getTasks().observe(this, taskEntries -> adapter.setTasks(taskEntries));
     }
 
 
@@ -508,11 +512,12 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                             showDialog(getResources().getString(R.string.error_no_face));
                             //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         } else {
-                            String persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
-                            //fetchDetails(persistedFaceId);
-                            hidepDialog();
-                            showDialog(getResources().getString(R.string.person_found));
-                            emptyInput();
+                            persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
+
+                            fetchDetails();
+                           // hidepDialog();
+                           // showDialog(getResources().getString(R.string.person_found));
+                           // emptyInput();
                             //Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
                         }
 
@@ -533,9 +538,66 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         });
     }
 
+//monirah
+
+    private void fetchDetails() {
+
+        Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
+
+        Call<List<ResponseGet>> call =userService.listface();
+
+        call.enqueue(new Callback<List<ResponseGet>>() {
+            @Override
+            public void onResponse(Call<List<ResponseGet>> call, Response<List<ResponseGet>> response) {
+                if(response.isSuccessful()){
+                    if(response.body() !=null) {
+                        List<ResponseGet> objlist = response.body();
+                        List<PersistedFace> obj=objlist.get(0).getPersistedFaces();
+
+                        if (obj.isEmpty() || obj == null) {
+                            hidepDialog();
+                            showDialog(getResources().getString(R.string.error_no_face));
+                            //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                        } else {
+                            for (int i = 0 ; i<=obj.size();i++) {
+                                String persistedId = obj.get(i).getPersistedFaceId();
+
+                                if(persistedFaceId == persistedId){
+                                    String userdata = obj.get(i).getUserData();
+                                    String [] array=userdata.split(",");
+                                    String name = array[0];
+                                    String phonenumber = array[1];
+                                    String address = addressText.getText().toString();
+                                   // sendMySMS(phonenumber, name + " " + R.string.is_found + address);
+
+                                    VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId,postPath, address);
+                                    AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertVerifiedImage(verifiedEntry));
+                                    break;
+                                }
+                            }
+
+                        }
+
+                    }
+                }else {
+                    hidepDialog();
+                    showDialog("test not work1");
+                    //  Toast.makeText(VerifyActivity.this, R.string.sorry_error, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ResponseGet>> call, Throwable t) {
+                hidepDialog();
+                showDialog("test not work2");
+                //  Toast.makeText(VerifyActivity.this, R.string.sorry_error, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+    }
+
     //SEND SMS
-
-
 
     /**
   pDialog is verbail ,

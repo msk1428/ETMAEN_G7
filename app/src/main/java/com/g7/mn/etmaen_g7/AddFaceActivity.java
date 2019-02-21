@@ -469,8 +469,6 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         } else {
                             hideProgress();
                             showDialog(getResources().getString(R.string.alrady_exist));
-
-
                             //Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
                         }
 
@@ -524,7 +522,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                                 //call query
                                 final AddEntry imageEntry = new AddEntry(name, phonenumber, persistedId, postPath);
 
-                                //run excute
+                                //run excute in background
                                 AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertClassifier(imageEntry));
 
                                 showDialog(getResources().getString(R.string.successfully_created));
