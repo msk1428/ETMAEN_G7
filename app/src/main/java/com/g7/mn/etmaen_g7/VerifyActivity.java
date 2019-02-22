@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -514,7 +515,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                         } else {
                             persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
 
-                            fetchDetails();
+                            fetchDetails(persistedFaceId);
                            // hidepDialog();
                            // showDialog(getResources().getString(R.string.person_found));
                            // emptyInput();
@@ -540,11 +541,50 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
 //monirah
 
-    private void fetchDetails() {
+    private void fetchDetails(String persistedFaceId) {
 
         Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
 
-        Call<List<ResponseGet>> call =userService.listface();
+        Call<ResponseGet> call = userService.listface();
+        call.enqueue(new Callback<ResponseGet>() {
+            @Override
+            public void onResponse(Call<ResponseGet> call, Response<ResponseGet> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        List<PersistedFace> persistedFaces = response.body().getPersistedFaces();
+
+                        for (PersistedFace persistedFace : persistedFaces) {
+                            if (persistedFace.getPersistedFaceId().equals(persistedFaceId)) {
+                                String selectedPersisteId = persistedFace.getPersistedFaceId();
+                                String userData = persistedFace.getUserData();
+
+                                String [] array = userData.split(",");
+                                String name = array[0];
+                                String phonenumber = array[1];
+                                String address = addressText.getText().toString();
+
+                                hidepDialog();
+                                showDialog(name + " " + phonenumber);
+
+                                VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId, postPath, address);
+                                AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertVerifiedImage(verifiedEntry));
+
+                            }
+                        }
+                    }
+                } else {
+                    hidepDialog();
+                    Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseGet> call, Throwable t) {
+                hidepDialog();
+                Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
+            }
+        });
+    /*    Call<List<ResponseGet>> call =userService.listface();
 
         call.enqueue(new Callback<List<ResponseGet>>() {
             @Override
@@ -593,7 +633,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                 //  Toast.makeText(VerifyActivity.this, R.string.sorry_error, Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
 
     }
 

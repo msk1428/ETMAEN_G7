@@ -33,7 +33,7 @@ public interface Service {
     Call<List<FindSimilarResponse>> fetchSimilar(@Body FindSimilar findSimilar) ;
 
     @GET(Routes.GET_FACES + FACE_LIST_ID)
-    Call<List<ResponseGet>>  listface();
+    Call<ResponseGet>  listface();
 
     @DELETE(Routes.DETECT_FACE + FACE_LIST_ID + "{persistedFaceId}")
     Call<Void> deleteFace(@Path("persistedFaceId") String persistedFaceId);
