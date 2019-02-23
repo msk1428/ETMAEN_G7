@@ -2,10 +2,14 @@ package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -20,12 +24,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -539,7 +543,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         });
     }
 
-//monirah
+
 
     private void fetchDetails(String persistedFaceId) {
 
@@ -563,8 +567,11 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                 String phonenumber = array[1];
                                 String address = addressText.getText().toString();
 
+                                //send sms
+                                sendMySMS(phonenumber, name + " " + R.string.is_found + address);
                                 hidepDialog();
-                                showDialog(name + " " + phonenumber);
+
+                                //add to local db
 
                                 VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId, postPath, address);
                                 AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertVerifiedImage(verifiedEntry));
@@ -574,14 +581,16 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     }
                 } else {
                     hidepDialog();
-                    Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
+                    showDialog(getResources().getString(R.string.error_fetching_record));
+                   // Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseGet> call, Throwable t) {
                 hidepDialog();
-                Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
+                showDialog(getResources().getString(R.string.error_fetching_record));
+               // Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
             }
         });
     /*    Call<List<ResponseGet>> call =userService.listface();
@@ -637,7 +646,88 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
     }
 
+
     //SEND SMS
+    public void sendMySMS(String phone, String message) {
+
+        //Check if the phoneNumber is empty
+        if (phone.isEmpty() || phone == null) {
+            showDialog(getResources().getString(R.string.valid_number));
+            //Toast.makeText(getApplicationContext(), R.string.valid_number, Toast.LENGTH_SHORT).show();
+        } else {
+
+            SmsManager sms = SmsManager.getDefault();
+            // if message length is too long messages are divided
+            List<String> messages = sms.divideMessage(message);
+            for (String msg : messages) {
+                PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
+                PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
+                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
+
+            }
+        }
+    }
+
+    public void onResume() {
+        super.onResume();
+        sentStatusReceiver=new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                String s = getString(R.string.upload);
+                // "Unknown Error";
+                switch (getResultCode()) {
+                    case Activity.RESULT_OK:
+                        s = getString(R.string.successful_send);
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        s = getString(R.string.generic_failure);
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        s = getString(R.string.error_no_service);
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        s = getString(R.string.error_pdu);
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        s = getString(R.string.error_radio_off);
+                        break;
+                    default:
+                        break;
+                }
+                showDialog(s);
+               // Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+
+            }
+        };
+        deliveredStatusReceiver=new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                String s = getString(R.string.message_not_delivered);
+                switch(getResultCode()) {
+                    case Activity.RESULT_OK:
+                        s = getString(R.string.delivered_success);
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        break;
+                }
+                showDialog(s);
+                //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+            }
+        };
+        registerReceiver(sentStatusReceiver, new IntentFilter("SMS_SENT"));
+        registerReceiver(deliveredStatusReceiver, new IntentFilter("SMS_DELIVERED"));
+    }
+
+
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(sentStatusReceiver);
+        unregisterReceiver(deliveredStatusReceiver);
+    }
+
+
 
     /**
   pDialog is verbail ,

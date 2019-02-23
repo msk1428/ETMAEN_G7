@@ -23,7 +23,9 @@
     <string name="select_image" translatable="true">please select an image</string>
     <string name="permission_denied" translatable="true">Permission denied, the permissions are very important for the apps usage</string>
     <string name="sorry_error" translatable="true">Sorry, there was an error!</string>
+
     <string name="error_no_face" translatable="false">Error Invalid Image, No face detected in the image</string>
+
     <string name="error_creation" translatable="true">error no respone</string>
     <string name="no_face_matching" translatable="true">no face matching from records</string>
     <string name="person_found" translatable="true">person found</string>
@@ -37,8 +39,15 @@
     <string name="pick_gallery" translatable="true">Pick from gallery</string>
     <string name="click_camera" translatable="true">Click from camera</string>
     <string name="remove" translatable="true">Remove image</string>
+
     <string name="response" translatable="false">Response</string>
     <string name="ok" translatable="false">OK</string>
-
-
+    <string name="successful_send" translatable="false">Message Sent Successfully !!</string>
+    <string name="generic_failure" translatable="false">Generic Failure Error</string>
+    <string name="error_no_service" translatable="false">Error : No Service Available</string>
+    <string name="error_pdu" translatable="false">Error : Null PDU</string>
+    <string name="error_radio_off" translatable="false">Error : Radio is off</string>
+    <string name="message_not_delivered" translatable="false">Message Not Delivered</string>
+    <string name="delivered_success" translatable="false">Message Delivered Successfully</string>
+    <string name="error_fetching_record" translatable="false">Error fetching record </string>
 </resources>
