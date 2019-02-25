@@ -17,7 +17,7 @@ android {
         }
     }
 
-    buildTypes.each{
+    buildTypes.each {
         it.buildConfigField 'String', 'COGNITIVE_SERVICE_API', CognitiveServiceApiToken
     }
 

@@ -50,7 +50,6 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
 
         //Set values
         holder.name.setText(name);
-        holder.phonenumber.setText(phonenumber);
         holder.address.setText(address);
 
         Glide.with(mContext)
@@ -82,7 +81,6 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
     public class ClassifierViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView name;
-        TextView phonenumber;
         TextView address;
         CircleImageView imageView;
         public RelativeLayout viewForeground;
@@ -91,7 +89,6 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
             super(itemView);
 
             name = itemView.findViewById(R.id.name);
-            phonenumber = itemView.findViewById(R.id.phonenumber);
             address = itemView.findViewById(R.id.address);
             imageView = itemView.findViewById(R.id.image);
             viewForeground = itemView.findViewById(R.id.view_foreground);

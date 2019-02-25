@@ -69,6 +69,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import static com.g7.mn.etmaen_g7.VerifiedDetailActivity.EXTRA_VERIFIED_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
@@ -562,20 +563,24 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                 String selectedPersisteId = persistedFace.getPersistedFaceId();
                                 String userData = persistedFace.getUserData();
 
-                                String [] array = userData.split(",");
+                                String [] array = userData.split(",");//the function split a,b,c -> 0a 1b 2c on one arry
                                 String name = array[0];
                                 String phonenumber = array[1];
                                 String address = addressText.getText().toString();
 
                                 //send sms
                                 sendMySMS(phonenumber, name + " " + R.string.is_found + address);
+
                                 hidepDialog();
 
-                                //add to local db
+                                //add to local db  1- verifiedEntry it is constcter on  verifiedEntry class
 
                                 VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId, postPath, address);
+                              //2- excut on backgroung by AppExctuors class 3- call opration insert in imageClassifierDao
                                 AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertVerifiedImage(verifiedEntry));
 
+                                //cleen data
+                                emptyInput();
                             }
                         }
                     }
@@ -662,13 +667,13 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             for (String msg : messages) {
                 PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
                 PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
-                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
+                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);//to run intent
 
             }
         }
     }
 
-    public void onResume() {
+    public void onResume() {//deal with getBroadcast
         super.onResume();
         sentStatusReceiver=new BroadcastReceiver() {
 
@@ -781,6 +786,9 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onItemClickListener(int itemId) {
+        Intent intent = new Intent(VerifyActivity.this, VerifiedDetailActivity.class);
+        intent.putExtra(EXTRA_VERIFIED_ID, itemId);
+        startActivity(intent);
 
     }
 }

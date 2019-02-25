@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.AdapterView;
 
 import com.bumptech.glide.Glide;
 import com.g7.mn.etmaen_g7.R;
@@ -93,7 +92,6 @@ public class AddClassifierAdapter extends RecyclerView.Adapter<AddClassifierAdap
 
         TextView name;
         TextView particulars;
-        TextView status;
         CircleImageView imageView;
         RelativeLayout viewForeground;
 
@@ -101,8 +99,7 @@ public class AddClassifierAdapter extends RecyclerView.Adapter<AddClassifierAdap
             super(itemView);
 
             name = itemView.findViewById(R.id.name);
-            particulars = itemView.findViewById(R.id.particulars);
-            status = itemView.findViewById(R.id.status);
+            particulars = itemView.findViewById(R.id.particulars);//phonenumber
             imageView = itemView.findViewById(R.id.image);
             viewForeground = itemView.findViewById(R.id.view_foreground);
             itemView.setOnClickListener(this);

@@ -20,6 +20,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -169,14 +170,14 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     private void deleteRecord(String persistedid, AddEntry position, int position1) {
         try{
             showProgress();
-            Service service = DataGenerator.createService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+            Service service = DataGenerator.creatService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
             Call<Void> call = service.deleteFace(persistedid);
 
             call.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                     if (response.isSuccessful()) {
-                        //Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             mDb.imageClassifierDao().deleteClassifier(position);
                         });
@@ -184,7 +185,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     } else {
                         hideProgress();
                         adapter.restoreItem(position, position1);
-                        //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -192,7 +193,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                     hideProgress();
                     adapter.restoreItem(position, position1);
-                    //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                     Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
                 }
             });
         } catch(Exception e) {

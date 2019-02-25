@@ -37,17 +37,7 @@
                 android:layout_marginTop="10dp"
                 tools:text="NAME"
                 android:layout_toEndOf="@+id/image" />
-            <TextView
-                android:id="@+id/phonenumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/black"
-                android:layout_marginTop="5dp"
-                android:layout_below="@+id/name"
-                tools:text="PHONENUMBER: 055308"
-                android:layout_toRightOf="@+id/image"
-                android:layout_toEndOf="@+id/image" />
+
             <TextView
                 android:id="@+id/address"
                 android:layout_width="wrap_content"
@@ -55,7 +45,7 @@
                 android:textSize="12sp"
                 android:textColor="@color/black"
                 android:layout_marginTop="5dp"
-                android:layout_below="@+id/phonenumber"
+                android:layout_below="@+id/name"
                 tools:text="ADDRESS: MA67288"
                 android:layout_toRightOf="@+id/image"
                 android:layout_toEndOf="@+id/image" />

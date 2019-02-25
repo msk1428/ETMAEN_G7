@@ -64,25 +64,6 @@
                 android:layout_marginStart="18dp"
                 android:layout_marginLeft="18dp" />
 
-            <TextView
-                android:id="@+id/phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:textColor="@color/black"
-                android:layout_below="@+id/address_value"
-                 android:text="@string/phone_number"
-                android:textStyle="bold"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/phone_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:layout_below="@+id/phone"
-                android:layout_marginStart="18dp"
-                android:layout_marginLeft="18dp" />
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/send_message"
@@ -91,7 +72,7 @@
                 android:layout_marginTop="20dp"
                 android:background="@color/colorPrimary"
                 android:textColor="@color/white"
-                android:layout_below="@+id/phone_value"
+                android:layout_below="@+id/address_value"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:text="@string/resend_message" />
