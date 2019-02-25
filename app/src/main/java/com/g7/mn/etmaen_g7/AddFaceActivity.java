@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -138,11 +140,68 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
             recycler_view.setAdapter(adapter);
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            // Called when a user swipes left or right on a ViewHolder
+            @Override
+            public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                if (viewHolder instanceof AddClassifierAdapter.ClassifierViewHolder) {
+                    int position = viewHolder.getAdapterPosition();
+                    List<AddEntry> entryList = adapter.getClassifier();
+                    String persistedId = entryList.get(position).getPersistedid();
+                    AddEntry db_position = entryList.get(position);
+
+                    // remove the item from recycler view
+                    adapter.removeItem(viewHolder.getAdapterPosition());
+
+                    deleteRecord(persistedId, db_position, position);
+                }
+            }
+        }).attachToRecyclerView(recycler_view);
 
         setupViewModel();
 
     }
+    private void deleteRecord(String persistedid, AddEntry position, int position1) {
+        try{
+            showProgress();
+            Service service = DataGenerator.createService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+            Call<Void> call = service.deleteFace(persistedid);
 
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        //Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+                        AppExecutors.getInstance().diskIO().execute(() -> {
+                            mDb.imageClassifierDao().deleteClassifier(position);
+                        });
+                        hideProgress();
+                    } else {
+                        hideProgress();
+                        adapter.restoreItem(position, position1);
+                        //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    hideProgress();
+                    adapter.restoreItem(position, position1);
+                    //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch(Exception e) {
+            hideProgress();
+            adapter.restoreItem(position, position1);
+            //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+
+        }
+    }
 
 
     private void setupViewModel() {
