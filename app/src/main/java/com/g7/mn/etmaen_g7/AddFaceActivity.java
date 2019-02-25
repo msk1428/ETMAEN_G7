@@ -40,6 +40,7 @@ import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
 import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
 import com.g7.mn.etmaen_g7.viewmodel.MainViewModel;
+import com.santalu.maskedittext.MaskEditText;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,7 +84,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     TextInputLayout contact_number;
 
     @BindView(R.id.input_contact_number)
-    EditText input_contact_number;
+    MaskEditText input_contact_number;
 
     @BindView(R.id.button_upload)
     Button button_upLoad;
@@ -372,7 +373,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
         if (input_name.length() == 0) {
             name.setError(getString(R.string.error_name));
-        } else if (input_contact_number.length() == 0  ) {
+        } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
 
             name.setError(getString(R.string.error_contact_number));
 

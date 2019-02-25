@@ -60,6 +60,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
+                        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ أبتثجحخدذرزسشصضطظعغقفكلمنهوياىةءئ"
                         android:hint="@string/full_name" />
                 </android.support.design.widget.TextInputLayout>
 
@@ -69,12 +70,14 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     app:errorEnabled="true">
-                    <EditText
+
+                    <com.santalu.maskedittext.MaskEditText
                         android:id="@+id/input_contact_number"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="phone"
-                        android:hint="@string/contact_number" />
+                        android:hint="@string/contact_number"
+                        app:met_mask="966#########"/>
                 </android.support.design.widget.TextInputLayout>
 
             </LinearLayout>
