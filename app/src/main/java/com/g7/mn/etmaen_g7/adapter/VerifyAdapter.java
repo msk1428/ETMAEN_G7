@@ -73,6 +73,16 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
         mImageEntries = imageEntries;
         notifyDataSetChanged();
     }
+    public void removeItem(int position) { // if row deled it in DB the function know the adapter dosen't show
+        mImageEntries.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(VerifiedEntry item, int position) { //recancell in DB
+        mImageEntries.add(position, item);
+        // notify item added by position
+        notifyItemInserted(position);
+    }
 
     public interface ItemClickListener { //3
         void onItemClickListener(int itemId);

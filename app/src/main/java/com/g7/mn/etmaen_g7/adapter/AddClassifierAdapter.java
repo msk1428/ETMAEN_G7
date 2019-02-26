@@ -73,7 +73,11 @@ public class AddClassifierAdapter extends RecyclerView.Adapter<AddClassifierAdap
         notifyDataSetChanged();// notify the sys if have chane in DB such as add new row
     }
 
-    public void removeItem(int position) { // if row deled it in DB the function know the adapter dosen't show
+
+
+    public interface ItemClickListener { // if press one of item open onther page ??
+        void onItemClickListener(int itemId);
+    }    public void removeItem(int position) { // if row deled it in DB the function know the adapter dosen't show
         mImageEntries.remove(position);
         notifyItemRemoved(position);
     }
@@ -82,10 +86,6 @@ public class AddClassifierAdapter extends RecyclerView.Adapter<AddClassifierAdap
         mImageEntries.add(position, item);
         // notify item added by position
         notifyItemInserted(position);
-    }
-
-    public interface ItemClickListener { // if press one of item open onther page ??
-        void onItemClickListener(int itemId);
     }
     // Inner class for creating ViewHolders  1- on click
     public class ClassifierViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

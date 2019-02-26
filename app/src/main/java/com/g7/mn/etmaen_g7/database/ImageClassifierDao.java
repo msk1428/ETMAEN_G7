@@ -32,6 +32,9 @@ public interface ImageClassifierDao {
     @Delete
     void deleteClassifier(AddEntry addEntry);
 
+    @Delete
+    void deleteVerify(VerifiedEntry verifiedEntry);
+
 
 }
 

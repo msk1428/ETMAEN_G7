@@ -65,7 +65,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mDb = AppDatabase.getInstance(getApplicationContext());
 
-        Intent intent = getIntent();
+        Intent intent = getIntent();//1check
         if (intent != null && intent.hasExtra(EXTRA_VERIFIED_ID)) {
             // populate the UI
             mVerifiedId = intent.getIntExtra(EXTRA_VERIFIED_ID, DEFAULT_VERIFIED_ID);
@@ -74,7 +74,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
             final FetchVerifyViewModel viewModel
                     = ViewModelProviders.of(this, factory).get(FetchVerifyViewModel.class);
 
-            viewModel.getVerify().observe(this, new Observer<VerifiedEntry>() {
+            viewModel.getVerify().observe(this, new Observer<VerifiedEntry>() {//observe work for livedata
                 @Override
                 public void onChanged(@Nullable VerifiedEntry verifiedEntry) {
                     viewModel.getVerify().removeObserver(this);
@@ -110,7 +110,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
             }
         }
     }
-
+// is for changes on the same recored to update in UI
     private void populateUI(VerifiedEntry verifiedEntry) {
         if (verifiedEntry == null) {
             return;
@@ -132,8 +132,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
     }
 
     private void sendMessage() {
-
-        sendMySMS(phonenumber, name + " " + R.string.is_found + address);
+        sendMySMS(phonenumber, name + " " + getString(R.string.is_found)+ address);
 
     }
 

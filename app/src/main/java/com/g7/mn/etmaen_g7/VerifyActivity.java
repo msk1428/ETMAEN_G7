@@ -19,17 +19,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -133,6 +136,29 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         adapter = new VerifyAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
         recycler_view.setAdapter(adapter);
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+
+            // Called when a user swipes left or right on a ViewHolder
+            @Override
+            public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                if (viewHolder instanceof VerifyAdapter.ClassifierViewHolder){
+                    int position = viewHolder.getAdapterPosition();
+                    List<VerifiedEntry> entryList=adapter.getClassifier();
+                    String persistedId = entryList.get(position).getPersistedid();
+                    VerifiedEntry db_position = entryList.get(position);
+
+                    // remove the item from recycler view
+                    adapter.removeItem(viewHolder.getAdapterPosition());
+
+                    deleteRecord(persistedId, db_position, position);
+                }
+            }
+        }).attachToRecyclerView(recycler_view);
 
         setupViewModel();
         initpDiloag();
@@ -144,6 +170,14 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
 
     }
+
+    private void deleteRecord(String persistedId, VerifiedEntry db_position, int position) {
+        Toast.makeText(VerifyActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            mDb.imageClassifierDao().deleteVerify(db_position);
+        });
+    }
+
     private void setupViewModel() {
         VerifyViewModel viewModel = ViewModelProviders.of(this).get(VerifyViewModel.class);
         viewModel.getTasks().observe(this, taskEntries -> adapter.setTasks(taskEntries));
@@ -558,6 +592,12 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     if (response.body() != null) {
                         List<PersistedFace> persistedFaces = response.body().getPersistedFaces();
 
+                       /** for (int i = 0; i < persistedFaces.size(); i++) {
+                            if (persistedFaces.get(i).getPersistedFaceId().equals(persistedFaceId)) {
+
+                            }
+                        }**/
+
                         for (PersistedFace persistedFace : persistedFaces) {
                             if (persistedFace.getPersistedFaceId().equals(persistedFaceId)) {
                                 String selectedPersisteId = persistedFace.getPersistedFaceId();
@@ -569,10 +609,10 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                 String address = addressText.getText().toString();
 
                                 //send sms
-                                sendMySMS(phonenumber, name + " " + R.string.is_found + address);
+                                sendMySMS(phonenumber, name + " " + getString(R.string.is_found) + address);
 
                                 hidepDialog();
-
+                                showDialog(getResources().getString(R.string.person_found));
                                 //add to local db  1- verifiedEntry it is constcter on  verifiedEntry class
 
                                 VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId, postPath, address);
@@ -657,18 +697,21 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
         //Check if the phoneNumber is empty
         if (phone.isEmpty() || phone == null) {
-            showDialog(getResources().getString(R.string.valid_number));
-            //Toast.makeText(getApplicationContext(), R.string.valid_number, Toast.LENGTH_SHORT).show();
+            return;
         } else {
-
             SmsManager sms = SmsManager.getDefault();
             // if message length is too long messages are divided
+
+            /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phone));
+            intent.putExtra("sms_body", message);
+            startActivity(intent);*/
+
             List<String> messages = sms.divideMessage(message);
             for (String msg : messages) {
                 PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
                 PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
                 sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);//to run intent
-
+               // Toast.makeText(getApplicationContext(), "send successful ", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -679,7 +722,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
             @Override
             public void onReceive(Context arg0, Intent arg1) {
-                String s = getString(R.string.upload);
+                String s = "";
                 // "Unknown Error";
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:

@@ -30,7 +30,7 @@
     <string name="no_face_matching" translatable="true">no face matching from records</string>
     <string name="person_found" translatable="true">person found</string>
     <string name="error_find_face" translatable="true">error finding face</string>
-    <string name="is_found" translatable="true">is found around </string>
+    <string name="is_found" translatable="true">, found: </string>
     <string name="valid_number" translatable="true">Please Enter a Valid Phone Number</string>
     <string name="record_deleted_success" translatable="true">record deleted successfully</string>
     <string name="error_deleting" translatable="true">error deleting record</string>
