@@ -724,7 +724,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     }
                 }else {
                     hidepDialog();
-                    showDialog(getResources().getString(R.string.error_find_face));
+                    showDialog("Sorry person not found ");//empity list
                   //  Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
                 }
             }
