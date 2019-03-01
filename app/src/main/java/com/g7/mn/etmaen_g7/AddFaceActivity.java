@@ -124,6 +124,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         if (getSupportActionBar() != null) {//back boutton
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        setTitle("Add Persons");
         if (savedInstanceState != null) {
             if (path != null) {
                 path = savedInstanceState.getString(POST_PATH);
@@ -164,6 +165,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             }
         }).attachToRecyclerView(recycler_view);
 
+
         setupViewModel();
 
     }
@@ -185,7 +187,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     } else {
                         hideProgress();
                         adapter.restoreItem(position, position1);
-                        Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -193,17 +195,16 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                     hideProgress();
                     adapter.restoreItem(position, position1);
-                     Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
                 }
             });
         } catch(Exception e) {
             hideProgress();
             adapter.restoreItem(position, position1);
-            //Toast.makeText(AddFaceActivity.this, R.string.error_deleting, Toast.LENGTH_SHORT).show();
+            Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
 
         }
     }
-
 
     private void setupViewModel() {
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
@@ -431,17 +432,22 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         name.setError(null);
         contact_number.setError(null);
 
-        if (input_name.length() == 0) {
+        if (input_name.getText().toString().startsWith(" ")) {//shoud not start with space
+            name.setError(getString(R.string.error_space));
+
+        }else  if (2 > input_name.length()|| input_name.length()>20) {
             name.setError(getString(R.string.error_name));
-        } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
+
+         } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
 
             name.setError(getString(R.string.error_contact_number));
 
-        } else {
+             } else {
+
              username = input_name.getText().toString().trim();
              phonenumber = input_contact_number.getText().toString().trim();
            addFace();
-        }
+              }
     }
 
     private void addFace() {
@@ -523,6 +529,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onResponse(Call<List<FindSimilarResponse>> call, Response<List<FindSimilarResponse>> response) {
                 if (response.isSuccessful()) {
+
                     if (response.body() != null) {
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
@@ -536,7 +543,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }else {
                     hideProgress();
-                    showDialog(getResources().getString(R.string.alrady_exist));
+                    addFace(username,phonenumber);
+                   // showDialog("not successfull");
                    // Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
                 }
             }

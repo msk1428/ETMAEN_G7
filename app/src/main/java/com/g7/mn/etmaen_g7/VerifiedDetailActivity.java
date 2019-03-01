@@ -1,33 +1,29 @@
 package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
-import android.telephony.SmsManager;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.g7.mn.etmaen_g7.database.AppDatabase;
 import com.g7.mn.etmaen_g7.database.VerifiedEntry;
 import com.g7.mn.etmaen_g7.viewmodel.FetchVerifyViewModel;
 import com.g7.mn.etmaen_g7.viewmodel.VerifyViewModelFactory;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,11 +32,12 @@ public class VerifiedDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_VERIFIED_ID = "extraImageId";
     private static final int DEFAULT_VERIFIED_ID = -1;
+    private static final int REQUEST_SEND_SMS = 3;
     private int mVerifiedId = DEFAULT_VERIFIED_ID;
-    public static final String INSTANCE_VERIFIED_ID = "instanceTaskId";
     private AppDatabase mDb;
-    private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
+   // private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
     private String phonenumber, name, address;
+    private ProgressDialog pDialog;
 
     @BindView(R.id.classifier_image)
     ImageView classifier_image;
@@ -64,7 +61,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mDb = AppDatabase.getInstance(getApplicationContext());
-
+        initpDiloag();
         Intent intent = getIntent();//1check
         if (intent != null && intent.hasExtra(EXTRA_VERIFIED_ID)) {
             // populate the UI
@@ -119,7 +116,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
         String image = verifiedEntry.getImage();
         name = verifiedEntry.getName();
         phonenumber = verifiedEntry.getPhonenumber();
-        setTitle(name);
+        setTitle(name);// for title bar
 
         address_value.setText(address);
         name_value.setText(name);
@@ -140,74 +137,55 @@ public class VerifiedDetailActivity extends AppCompatActivity {
 
         //Check if the phoneNumber is empty
         if (phone.isEmpty()) {
-            Toast.makeText(getApplicationContext(), R.string.valid_number, Toast.LENGTH_SHORT).show();
+           return;
         } else {
 
-            SmsManager sms = SmsManager.getDefault();
-            // if message length is too long messages are divided
-            List<String> messages = sms.divideMessage(message);
-            for (String msg : messages) {
-                PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
-                PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
-                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phone));
+            intent.putExtra("sms_body", message);
+            startActivityForResult(intent, REQUEST_SEND_SMS);
+            //startActivity(intent);
 
+        }
+        }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK){ //the user choose pic
+
+            if (requestCode == REQUEST_SEND_SMS) {
+                showDialog("successfully sent");// need to string
+                // Toast.makeText(this, "successfully sent", Toast.LENGTH_SHORT).show();
             }
         }
+        else if (resultCode != RESULT_CANCELED) {
+            showDialog(getResources().getString(R.string.sorry_error));
+            // Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
+        }
+    }
+    private void initpDiloag() { //3- inital step
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage(getString(R.string.msg_loading));
+        pDialog.setCancelable(true);
     }
 
-    public void onResume() {
-        super.onResume();
-        sentStatusReceiver=new BroadcastReceiver() {
+    private void showDialog(String text) {
+        boolean wrapInScrollView = true;
+        MaterialDialog dialog = new MaterialDialog.Builder(VerifiedDetailActivity.this)
 
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                String s = "Unknown Error";
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        s = "Message Sent Successfully !!";
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        s = "Generic Failure Error";
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        s = "Error : No Service Available";
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        s = "Error : Null PDU";
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        s = "Error : Radio is off";
-                        break;
-                    default:
-                        break;
-                }
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                .title(R.string.response)
+                .customView(R.layout.custom, wrapInScrollView)
+                .positiveText(R.string.ok)
+                .onPositive((dialog1, which) -> {
+                    dialog1.dismiss();
+                })
+                .show();
+        View view = dialog.getCustomView();
 
-            }
-        };
-        deliveredStatusReceiver=new BroadcastReceiver() {
+        if (view != null) {
+            TextView verifiedResponse = view.findViewById(R.id.verifiedResponse);
 
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                String s = "Message Not Delivered";
-                switch(getResultCode()) {
-                    case Activity.RESULT_OK:
-                        s = "Message Delivered Successfully";
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        break;
-                }
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-            }
-        };
-        registerReceiver(sentStatusReceiver, new IntentFilter("SMS_SENT"));
-        registerReceiver(deliveredStatusReceiver, new IntentFilter("SMS_DELIVERED"));
-    }
+            verifiedResponse.setText(text);
+        }
 
-
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(sentStatusReceiver);
-        unregisterReceiver(deliveredStatusReceiver);
     }
 }

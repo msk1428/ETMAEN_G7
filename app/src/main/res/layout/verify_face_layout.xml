@@ -95,6 +95,7 @@
                 android:layout_below="@+id/locationLayout"
                 android:textColor="@color/black"
                 android:text="@string/classification"
+                android:layout_centerHorizontal="true"
                 android:textStyle="bold"
                 android:textSize="16sp" />
 

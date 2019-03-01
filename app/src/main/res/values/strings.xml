@@ -1,14 +1,16 @@
 <resources>
     <string name="app_name" translatable="true">Etmaen</string>
     <string name="full_name" translatable="true">Name</string>
-    <string name="contact_number" translatable="true">Contact phone number</string>
+    <string name="contact_number" translatable="true">Contact phone number 9665XXXXXXXX</string>
     <string name="upload" translatable="true">Upload</string>
     <string name="train" translatable="true">Train</string>
-    <string name="classification" translatable="true">Result</string>
+
+    <string name="classification" translatable="true">Lost Persons List</string>
+
     <string name="verify" translatable="true">Verify Person</string>
     <string name="add_face" translatable="true">Add new face</string>
-    <string name="error_name" translatable="true">Name is required</string>
-    <string name="error_contact_number" translatable="true">Contact number is required like this +966XXXXXXXXX</string>
+    <string name="error_name" translatable="true">Name is lengh required between 2 to 20</string>
+    <string name="error_contact_number" translatable="true">Contact number is required like this 9665XXXXXXXX</string>
     <string name="uploadImages" translatable="true">Set your image</string>
     <string name="msg_loading" translatable="true">Loading…</string>
     <string name="create" translatable="true">Create Person</string>
@@ -16,7 +18,9 @@
     <string name="address" translatable="true">Address</string>
     <string name="phone_number" translatable="true">Phone number</string>
     <string name="resend_message" translatable="true">RESEND MESSAGE</string>
-    <string name="added_items" translatable="true">Added items</string>
+
+    <string name="added_items" translatable="true">Persons Added List</string>
+
     <string name="current_location" translatable="true">Current location</string>
     <string name="current_address" translatable="true">Current address</string>
     <string name="not_available" translatable="true">Not available</string>
@@ -33,13 +37,16 @@
     <string name="is_found" translatable="true">, found: </string>
     <string name="valid_number" translatable="true">Please Enter a Valid Phone Number</string>
     <string name="record_deleted_success" translatable="true">record deleted successfully</string>
-    <string name="error_deleting" translatable="true">error deleting record</string>
+
+    <string name="error_deleting1" translatable="false">error deleting record 1</string>
+    <string name="error_deleting2" translatable="false">error deleting record 2</string>
     <string name="successfully_created" translatable="true">successfully created</string>
-    <string name="alrady_exist" translatable="true">error the face already exist </string>
+    <string name="alrady_exist" translatable="true">Error the face already exist </string>
     <string name="pick_gallery" translatable="true">Pick from gallery</string>
     <string name="click_camera" translatable="true">Click from camera</string>
     <string name="remove" translatable="true">Remove image</string>
 
+    <string name="error_space" translatable="false">Error invalid start with space </string>
     <string name="response" translatable="false">Response</string>
     <string name="ok" translatable="false">OK</string>
     <string name="successful_send" translatable="false">Message Sent Successfully !!</string>

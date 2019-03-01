@@ -2,23 +2,23 @@ package com.g7.mn.etmaen_g7;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -49,6 +49,22 @@ import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
 import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
 import com.g7.mn.etmaen_g7.viewmodel.VerifyViewModel;
 import com.github.florent37.rxgps.RxGps;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,8 +79,6 @@ import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -76,6 +90,7 @@ import static com.g7.mn.etmaen_g7.VerifiedDetailActivity.EXTRA_VERIFIED_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
+
 
 public class VerifyActivity extends BaseActivity implements View.OnClickListener , VerifyAdapter.ItemClickListener {//1 implement onclick then creat method onclick
 //  varibals
@@ -101,6 +116,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private int[] itemIds;
     private static final int CAMERA_PIC_REQUEST = 1;//any number for request
     private static final int REQUEST_PICK_PHOTO = 2;//any number for request
+    private static final int REQUEST_SEND_SMS = 3;
     private String postPath, path,mediaPath,faceId;
     private String mImageFileLocation = "";
     private Uri fileUri;
@@ -110,10 +126,24 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private ProgressDialog pDialog;
     private  RxGps rxGps;
     private AppDatabase mDb;
+    private String longitude, latitude;
+    Geocoder geocoder;
+    List<Address> addresses;
     private VerifyAdapter adapter;
     private String persistedFaceId;
-    private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
+    //private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private SettingsClient mSettingsClient;
+    private LocationRequest mLocationRequest;
+    private LocationSettingsRequest mLocationSettingsRequest;
+    private LocationCallback mLocationCallback;
+    private Location mCurrentLocation;
+    private Boolean mRequestingLocationUpdates;
+    // location updates interval - 10sec
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
 
+    private static final int REQUEST_CHECK_SETTINGS = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,15 +156,25 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        setTitle("Verify Persons");
+
         // 5-active each button or activity + 9 - filling array
         seLectImage.setOnClickListener(this);
         button_verify.setOnClickListener(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
         itemIds = new int[]{0, 1, 2};
         mDb = AppDatabase.getInstance(getApplicationContext());
         recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
         adapter = new VerifyAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
         recycler_view.setAdapter(adapter);
+
+        init();
+
+        // restore the values from saved instance state
+        restoreValuesFromBundle(savedInstanceState);
+        startLocation();
+        geocoder = new Geocoder(this, Locale.getDefault());
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -163,13 +203,163 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         setupViewModel();
         initpDiloag();
 
-       //Location
-        rxGps = new RxGps(this);//no need to primission
-        getLocation();
-        getStreet();
 
 
     }
+
+    private void init() {
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                // location is received
+                mCurrentLocation = locationResult.getLastLocation();
+
+                updateLocationUI();
+            }
+        };
+
+        mRequestingLocationUpdates = false;
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setSmallestDisplacement(10);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        mLocationSettingsRequest = builder.build();
+    }
+
+    private void restoreValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("is_requesting_updates")) {
+                mRequestingLocationUpdates = savedInstanceState.getBoolean("is_requesting_updates");
+            }
+
+            if (savedInstanceState.containsKey("last_known_location")) {
+                mCurrentLocation = savedInstanceState.getParcelable("last_known_location");
+            }
+
+            if (savedInstanceState.containsKey("last_updated_on")) {
+            }
+        }
+
+        updateLocationUI();
+    }
+
+    public void startLocation() {
+        // Requesting ACCESS_FINE_LOCATION using Dexter library
+        Dexter.withActivity(this)
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        mRequestingLocationUpdates = true;
+                        startLocationUpdates();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        if (response.isPermanentlyDenied()) {
+                            // open device settings when the permission is
+                            // denied permanently
+                            openSettings();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).check();
+    }
+
+    private void updateLocationUI() {
+        if (mCurrentLocation != null) {
+
+            try {
+                addresses = geocoder.getFromLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+
+            addressText.setText(address);
+            locationText.setText(mCurrentLocation.getLatitude()+ ", " + mCurrentLocation.getLongitude());
+
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates() {
+        mSettingsClient
+                .checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(this, locationSettingsResponse -> {
+                    Log.i(TAG, "All location settings are satisfied.");
+
+                    Toast.makeText(getApplicationContext(), "Started location updates!", Toast.LENGTH_SHORT).show();
+
+                    //noinspection MissingPermission
+                    mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                            mLocationCallback, Looper.myLooper());
+
+                    updateLocationUI();
+                })
+                .addOnFailureListener(this, e -> {
+                    int statusCode = ((ApiException) e).getStatusCode();
+                    switch (statusCode) {
+                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                            Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
+                                    "location settings ");
+                            try {
+                                // Show the dialog by calling startResolutionForResult(), and check the
+                                // result in onActivityResult().
+                                ResolvableApiException rae = (ResolvableApiException) e;
+                                rae.startResolutionForResult(VerifyActivity.this, REQUEST_CHECK_SETTINGS);
+                            } catch (IntentSender.SendIntentException sie) {
+                                Log.i(TAG, "PendingIntent unable to execute request.");
+                            }
+                            break;
+                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                            String errorMessage = "Location settings are inadequate, and cannot be " +
+                                    "fixed here. Fix in Settings.";
+                            Log.e(TAG, errorMessage);
+
+                            Toast.makeText(VerifyActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    }
+
+                    updateLocationUI();
+                });
+    }
+
+    private void openSettings() {
+        Intent intent = new Intent();
+        intent.setAction(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package",
+                BuildConfig.APPLICATION_ID, null);
+        intent.setData(uri);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
 
     private void deleteRecord(String persistedId, VerifiedEntry db_position, int position) {
         Toast.makeText(VerifyActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
@@ -183,45 +373,6 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
         viewModel.getTasks().observe(this, taskEntries -> adapter.setTasks(taskEntries));
     }
 
-
-    @SuppressLint("CheckResult")
-     private void getLocation() {
-
-        rxGps.lastLocation()// get the last location for client device
-
-                .doOnSubscribe(this::addDisposable)//to tidier the code . Modifies the source so that it invokes the given action when it is subscribed from its subscribers.
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-
-                .subscribe(location -> { // msg about permission
-                    locationText.setText(location.getLatitude() + ", " + location.getLongitude());
-                }, throwable -> {
-                    if (throwable instanceof RxGps.PermissionException) {
-                        displayError(throwable.getMessage());
-                    } else if (throwable instanceof RxGps.PlayServicesNotAvailableException) {
-                        displayError(throwable.getMessage());
-                    }
-                });
-
-    }
-
-    @SuppressLint("CheckResult")
-    private void getStreet() {
-        rxGps.locationLowPower()
-                .flatMapMaybe(rxGps::geocoding)
-                .doOnSubscribe(this::addDisposable)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(address ->{
-                    addressText.setText(getAddressText(address));
-                }, throwable -> {
-                    if (throwable instanceof RxGps.PermissionException) {
-                        displayError(throwable.getMessage());
-                    } else if (throwable instanceof RxGps.PlayServicesNotAvailableException) {
-                        displayError(throwable.getMessage());
-                    }
-                });
-    }
 
     private String  getAddressText(Address address) {
     String addressText ="";
@@ -264,8 +415,11 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                 if (postPath == null) {
                     showDialog(getResources().getString(R.string.select_image));
                    // Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
-                }else{
-                addface();}//if press button verify they chack the postpath then go to API
+                }else if(addressText.getText() == null || locationText.getText() == null) {
+                    Toast.makeText(this, "Please turnOn your location", Toast.LENGTH_SHORT).show();
+                } else{
+                    addface();
+                }//if press button verify they chack the postpath then go to API
                 break;
 
         }
@@ -440,10 +594,15 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     postPath = fileUri.getPath();
                     path = postPath;
                 }
+            } else if (requestCode == REQUEST_SEND_SMS) {
+                showDialog("successfully sent");// need to string
+               // Toast.makeText(this, "successfully sent", Toast.LENGTH_SHORT).show();
+            } else if (requestCode == REQUEST_CHECK_SETTINGS) {
             }
         }
         else if (resultCode != RESULT_CANCELED) {
             showDialog(getResources().getString(R.string.sorry_error));
+                mRequestingLocationUpdates = false;
            // Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
         }
     }
@@ -491,7 +650,9 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                     List<DetectFaceResponse> addFaceResponse = response.body();
                                     if (!response.body().isEmpty()) {
                                         faceId = addFaceResponse.get(0).getFaceId();
-                                        getStreet();
+                                        //
+                                        //
+                                        // getStreet();
                                         findFace();
                                     } else {
                                         hidepDialog();
@@ -549,16 +710,15 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
                             hidepDialog();
-                            showDialog(getResources().getString(R.string.error_no_face));
+                            showDialog("Sorry person not found ");
                             //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         } else {
                             persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
 
                             fetchDetails(persistedFaceId);
-                           // hidepDialog();
+
                            // showDialog(getResources().getString(R.string.person_found));
-                           // emptyInput();
-                            //Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -638,56 +798,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                // Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
             }
         });
-    /*    Call<List<ResponseGet>> call =userService.listface();
 
-        call.enqueue(new Callback<List<ResponseGet>>() {
-            @Override
-            public void onResponse(Call<List<ResponseGet>> call, Response<List<ResponseGet>> response) {
-                if(response.isSuccessful()){
-                    if(response.body() !=null) {
-                        List<ResponseGet> objlist = response.body();
-                        List<PersistedFace> obj=objlist.get(0).getPersistedFaces();
-
-                        if (obj.isEmpty() || obj == null) {
-                            hidepDialog();
-                            showDialog(getResources().getString(R.string.error_no_face));
-                            //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
-                        } else {
-                            for (int i = 0 ; i<=obj.size();i++) {
-                                String persistedId = obj.get(i).getPersistedFaceId();
-
-                                if(persistedFaceId == persistedId){
-                                    String userdata = obj.get(i).getUserData();
-                                    String [] array=userdata.split(",");
-                                    String name = array[0];
-                                    String phonenumber = array[1];
-                                    String address = addressText.getText().toString();
-                                   // sendMySMS(phonenumber, name + " " + R.string.is_found + address);
-
-                                    VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId,postPath, address);
-                                    AppExecutors.getInstance().diskIO().execute(() -> mDb.imageClassifierDao().insertVerifiedImage(verifiedEntry));
-                                    break;
-                                }
-                            }
-
-                        }
-
-                    }
-                }else {
-                    hidepDialog();
-                    showDialog("test not work1");
-                    //  Toast.makeText(VerifyActivity.this, R.string.sorry_error, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ResponseGet>> call, Throwable t) {
-                hidepDialog();
-                showDialog("test not work2");
-                //  Toast.makeText(VerifyActivity.this, R.string.sorry_error, Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
 
     }
 
@@ -702,77 +813,29 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             SmsManager sms = SmsManager.getDefault();
             // if message length is too long messages are divided
 
-            /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phone));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phone));
             intent.putExtra("sms_body", message);
-            startActivity(intent);*/
+            startActivityForResult(intent, REQUEST_SEND_SMS);
+            //startActivity(intent);
 
-            List<String> messages = sms.divideMessage(message);
-            for (String msg : messages) {
-                PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
-                PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
-                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);//to run intent
-               // Toast.makeText(getApplicationContext(), "send successful ", Toast.LENGTH_SHORT).show();
-            }
+
         }
     }
 
-    public void onResume() {//deal with getBroadcast
+    public void onResume() {
         super.onResume();
-        sentStatusReceiver=new BroadcastReceiver() {
 
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                String s = "";
-                // "Unknown Error";
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        s = getString(R.string.successful_send);
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        s = getString(R.string.generic_failure);
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        s = getString(R.string.error_no_service);
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        s = getString(R.string.error_pdu);
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        s = getString(R.string.error_radio_off);
-                        break;
-                    default:
-                        break;
-                }
-                showDialog(s);
-               // Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+        if (mRequestingLocationUpdates && checkPermissions()) {
+            startLocationUpdates();
+        }
 
-            }
-        };
-        deliveredStatusReceiver=new BroadcastReceiver() {
+        updateLocationUI();
 
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                String s = getString(R.string.message_not_delivered);
-                switch(getResultCode()) {
-                    case Activity.RESULT_OK:
-                        s = getString(R.string.delivered_success);
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        break;
-                }
-                showDialog(s);
-                //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-            }
-        };
-        registerReceiver(sentStatusReceiver, new IntentFilter("SMS_SENT"));
-        registerReceiver(deliveredStatusReceiver, new IntentFilter("SMS_DELIVERED"));
     }
 
 
     public void onPause() {
         super.onPause();
-        unregisterReceiver(sentStatusReceiver);
-        unregisterReceiver(deliveredStatusReceiver);
     }
 
 

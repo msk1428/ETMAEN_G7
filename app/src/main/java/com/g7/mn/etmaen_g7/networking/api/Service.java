@@ -35,7 +35,8 @@ public interface Service {
     @GET(Routes.GET_FACES + FACE_LIST_ID)
     Call<ResponseGet>  listface();
 
-    @DELETE(Routes.DELEET_FACE + FACE_LIST_ID + "{persistedFaceId}")
+    @DELETE(Routes.DELETE_FACE + "persistedFaces/" + "{persistedFaceId}")
     Call<Void> deleteFace(@Path("persistedFaceId") String persistedFaceId);
+
 
 }

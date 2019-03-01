@@ -6,6 +6,6 @@ public interface Routes {
     String DETECT_FACE = "detect";
     String FIND_SIMILAR = "findsimilars";
     String GET_FACES = "facelists/";
-    String DELEET_FACE = "facelists/";
-
+    String DELETE_FACE = "facelists/etmaenfacelist/";
 }
+
