@@ -58,8 +58,6 @@
     <string name="pref_header_about" >المطور </string>
     <string name="title_version" >الإصدار</string>
     <string name="app_version" >1.0</string>
-    <string name="add_persons" >إضافة اشخاص</string>
-    <string name="verify_persons" > التحقق من الأشخاص </string>
     <string name="location_update" > بدأت تحديثات الموقع!</string>
     <string name="error_location" > إعدادات الموقع غير كافية ، ولا يمكن إصلاحها هنايمكن إصلاح من الإعدادات. </string>
     <string name="send_success" > أرسلت بنجاح</string>

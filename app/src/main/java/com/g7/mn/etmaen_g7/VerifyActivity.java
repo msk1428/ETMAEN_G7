@@ -153,7 +153,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        setTitle(R.string.verify_persons);
+        setTitle(R.string.verify);
 
         // 5-active each button or activity + 9 - filling array
         seLectImage.setOnClickListener(this);

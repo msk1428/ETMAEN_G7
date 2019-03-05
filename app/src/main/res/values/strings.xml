@@ -59,8 +59,7 @@
     <string name="pref_header_about" translatable="true">Develop By</string>
     <string name="title_version" translatable="true">Version</string>
     <string name="app_version" translatable="true">1.0</string>
-    <string name="add_persons" translatable="true">Add Persons</string>
-    <string name="verify_persons" translatable="true">Verify Persons</string>
+
     <string name="location_update" translatable="true">Started location updates!</string>
     <string name="error_location" translatable="true">Location settings are inadequate, and cannot be fixed here. Fix in Settings.</string>
     <string name="send_success" translatable="true">successfully sent</string>

@@ -123,7 +123,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         if (getSupportActionBar() != null) {//back boutton
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        setTitle(R.string.add_persons);
+        setTitle(R.string.add_face);
         if (savedInstanceState != null) {
             if (path != null) {
                 path = savedInstanceState.getString(POST_PATH);
@@ -438,7 +438,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         if (input_name.getText().toString().startsWith(" ")) {//should not start with space
             name.setError(getString(R.string.error_space));
 
-        }else  if (2 > input_name.length()&& input_name.length()>20) {
+        }else  if (2 > input_name.length() || input_name.length()>20) {//10
             name.setError(getString(R.string.error_name));
 
          } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
