@@ -35,7 +35,6 @@ public class VerifiedDetailActivity extends AppCompatActivity {
     private static final int REQUEST_SEND_SMS = 3;
     private int mVerifiedId = DEFAULT_VERIFIED_ID;
     private AppDatabase mDb;
-   // private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
     private String phonenumber, name, address;
     private ProgressDialog pDialog;
 
@@ -153,7 +152,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK){ //the user choose pic
 
             if (requestCode == REQUEST_SEND_SMS) {
-                showDialog("successfully sent");// need to string
+                showDialog(getResources().getString(R.string.send_success));// need to string
                 // Toast.makeText(this, "successfully sent", Toast.LENGTH_SHORT).show();
             }
         }

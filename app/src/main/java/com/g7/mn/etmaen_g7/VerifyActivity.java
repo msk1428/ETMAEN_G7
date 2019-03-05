@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -48,7 +49,6 @@ import com.g7.mn.etmaen_g7.networking.api.Service;
 import com.g7.mn.etmaen_g7.networking.generator.DataGenerator;
 import com.g7.mn.etmaen_g7.viewmodel.AppExecutors;
 import com.g7.mn.etmaen_g7.viewmodel.VerifyViewModel;
-import com.github.florent37.rxgps.RxGps;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -92,7 +92,7 @@ import static com.g7.mn.etmaen_g7.utlis.Constants.FACE_LIST_ID;
 import static com.g7.mn.etmaen_g7.utlis.Constants.MODE;
 
 
-public class VerifyActivity extends BaseActivity implements View.OnClickListener , VerifyAdapter.ItemClickListener {//1 implement onclick then creat method onclick
+public class VerifyActivity extends AppCompatActivity implements View.OnClickListener , VerifyAdapter.ItemClickListener {//1 implement onclick then creat method onclick
 //  varibals
 
     @BindView(R.id.selectImage)
@@ -124,14 +124,11 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     private static final String TAG = VerifyActivity.class.getSimpleName();
     private static final String POST_PATH = "post_path";
     private ProgressDialog pDialog;
-    private  RxGps rxGps;
     private AppDatabase mDb;
-    private String longitude, latitude;
     Geocoder geocoder;
     List<Address> addresses;
     private VerifyAdapter adapter;
     private String persistedFaceId;
-    //private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
     private FusedLocationProviderClient mFusedLocationClient;
     private SettingsClient mSettingsClient;
     private LocationRequest mLocationRequest;
@@ -156,7 +153,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        setTitle("Verify Persons");
+        setTitle(R.string.verify_persons);
 
         // 5-active each button or activity + 9 - filling array
         seLectImage.setOnClickListener(this);
@@ -308,7 +305,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                 .addOnSuccessListener(this, locationSettingsResponse -> {
                     Log.i(TAG, "All location settings are satisfied.");
 
-                    Toast.makeText(getApplicationContext(), "Started location updates!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.location_update, Toast.LENGTH_SHORT).show();
 
                     //noinspection MissingPermission
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest,
@@ -332,11 +329,10 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                             }
                             break;
                         case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            String errorMessage = "Location settings are inadequate, and cannot be " +
-                                    "fixed here. Fix in Settings.";
+                            String errorMessage = getString(R.string.error_location);
                             Log.e(TAG, errorMessage);
-
-                            Toast.makeText(VerifyActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                            showDialog(getResources().getString(R.string.error_location));
+                            //Toast.makeText(VerifyActivity.this,errorMessage, Toast.LENGTH_LONG).show();
                     }
 
                     updateLocationUI();
@@ -362,7 +358,8 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
 
 
     private void deleteRecord(String persistedId, VerifiedEntry db_position, int position) {
-        Toast.makeText(VerifyActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+        showDialog(getResources().getString(R.string.record_deleted_success));
+        //Toast.makeText(VerifyActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
         AppExecutors.getInstance().diskIO().execute(() -> {
             mDb.imageClassifierDao().deleteVerify(db_position);
         });
@@ -387,11 +384,6 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
     return addressText;
     }
 
-    private void displayError(String message) {
-        showDialog(message);
-       // Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-
-    }
 
 
     @Override
@@ -595,7 +587,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     path = postPath;
                 }
             } else if (requestCode == REQUEST_SEND_SMS) {
-                showDialog("successfully sent");// need to string
+                showDialog(getResources().getString(R.string.send_success));// need to string
                // Toast.makeText(this, "successfully sent", Toast.LENGTH_SHORT).show();
             } else if (requestCode == REQUEST_CHECK_SETTINGS) {
             }
@@ -650,9 +642,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                                     List<DetectFaceResponse> addFaceResponse = response.body();
                                     if (!response.body().isEmpty()) {
                                         faceId = addFaceResponse.get(0).getFaceId();
-                                        //
-                                        //
-                                        // getStreet();
+
                                         findFace();
                                     } else {
                                         hidepDialog();
@@ -663,7 +653,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                             } else {
 
                                 hidepDialog();
-                                showDialog(getResources().getString(R.string.error_creation));
+                                showDialog(getResources().getString(R.string.error_detect1));
                                // Toast.makeText( VerifyActivity.this,R.string.error_creation,Toast.LENGTH_SHORT).show();
                             }
                     }
@@ -671,7 +661,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     @Override
                     public void onFailure(Call<List<DetectFaceResponse>> call, Throwable t) {
                         hidepDialog();
-                        showDialog(getResources().getString(R.string.error_creation));
+                        showDialog(getResources().getString(R.string.error_detect2));
                         //Toast.makeText(VerifyActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -710,21 +700,21 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
                             hidepDialog();
-                            showDialog("Sorry person not found ");
+                            showDialog(getResources().getString(R.string.error_not_found));
                             //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         } else {
                             persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
 
                             fetchDetails(persistedFaceId);
 
-                           // showDialog(getResources().getString(R.string.person_found));
+                           showDialog(getResources().getString(R.string.person_found));
                             // Toast.makeText(VerifyActivity.this, R.string.person_found, Toast.LENGTH_SHORT).show();
                         }
 
                     }
                 }else {
                     hidepDialog();
-                    showDialog("Sorry person not found ");//empity list
+                    showDialog(getResources().getString(R.string.error_find1));//empity list
                   //  Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -732,7 +722,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
                 hidepDialog();
-                showDialog(getResources().getString(R.string.error_find_face));
+                showDialog(getResources().getString(R.string.error_find2));
                 //Toast.makeText(VerifyActivity.this, R.string.error_find_face, Toast.LENGTH_SHORT).show();
             }
         });
@@ -786,7 +776,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
                     }
                 } else {
                     hidepDialog();
-                    showDialog(getResources().getString(R.string.error_fetching_record));
+                    showDialog(getResources().getString(R.string.error_detils1));
                    // Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -794,7 +784,7 @@ public class VerifyActivity extends BaseActivity implements View.OnClickListener
             @Override
             public void onFailure(Call<ResponseGet> call, Throwable t) {
                 hidepDialog();
-                showDialog(getResources().getString(R.string.error_fetching_record));
+                showDialog(getResources().getString(R.string.error_detils2));
                // Toast.makeText(VerifyActivity.this, "error fetching record ", Toast.LENGTH_SHORT).show();
             }
         });

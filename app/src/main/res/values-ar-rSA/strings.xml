@@ -1,17 +1,15 @@
 <resources>
     <string name="app_name">إطمئن</string>
     <string name="full_name">الاسم</string>
-    <string name="contact_number">رقم التواصل </string>
-    <string name="upload">إرفع</string>
-    <string name="train">تدريب</string>
-    <string name="classification">النتيجة</string>
-    <string name="verify">عملية التحقق</string>
-    <string name="add_face">التسجيل</string>
-    <string name="error_name"> الاسم خطأ</string>
-    <string name="error_contact_number">رقم الجوال مطلوب</string>
+    <string name="contact_number">رقم التواصل ########9665</string>
+    <string name="upload">رفـع</string>
+    <string name="classification">الأشخاص الضائعين </string>
+    <string name="verify">مساعدة شخص ضائع</string>
+    <string name="add_face">تسجيل جديد</string>
+    <string name="error_name">اسم الطول مطلوب بين 2 إلى 20</string>
+    <string name="error_contact_number">مطلوب رقم الاتصال كما ########9665</string>
     <string name="uploadImages">قم برفع صورة</string>
     <string name="msg_loading">تحميل…</string>
-    <string name="create">إضافة شخص</string>
     <string name="name">الاسم</string>
     <string name="address">العنوان</string>
     <string name="phone_number">رقم الجوال</string>
@@ -20,21 +18,51 @@
     <string name="current_location">الموقع الحالي</string>
     <string name="current_address" >العنوان الحالي</string>
     <string name="not_available">غير متاح</string>
-    <string name="error_no_face" >خطأ الصورة غير صالحة ، لم يتم اكتشاف أي وجه في الصورة</string>
-    <string name="select_image">من فضلك اختار صورة</string>
-    <string name="permission_denied">تم رفض الإذن ، تكون الأذونات مهمة جدًا لاستخدام التطبيقات</string>
+    <string name="select_image">خطأ: من فضلك اختار صورة</string>
+    <string name="error_no_face" >خطأ: الصورة غير صالحة، لم يتم اكتشاف أي وجه في الصورة</string>
+    <string name="permission_denied">تم رفض الصلاحية ، تكون الصلاحيات مهمة جدًا لاستخدام التطبيقات</string>
     <string name="sorry_error">نأسف,لقد تم العثور على خطأ!</string>
-    <string name="error_creation">خطأ في التسجيل راجع مرة اخرى</string>
-    <string name="no_face_matching">ل يوجد أوجه مطابقة من السجلات</string>
-    <string name="person_found">الشخص موجود</string>
-    <string name="error_find_face">خطأ,في البحث عن الوجهه</string>
-    <string name="is_found">لقد تم ايجاد الوجه </string>
-    <string name="valid_number">من فضلك,قم بادخال رقم تواصل صحيح</string>
+    <string name="no_face_matching">خطأ: لا يوجد تطابق مع السجلات</string>
+    <string name="person_found">تم العثور عليه بنجاح</string>
     <string name= "record_deleted_success">تم حذف البيانات بنجاح</string>
-    <string name="error_deleting">خطأ,في عملية حذف البيانات</string>
-    <string name="successfully_created">تمت اضافة البيانات بنجاح</string>
-    <string name="alrady_exist" >خطأ المعلومات مخزنة مسبقا </string>
+
+    <string name="error_find_face">خطأ: في البحث عن الوجهه</string>
+    <string name="is_found" >,تم العثور </string>
+
+
+    <string name="error_deleting1" > خطأ: غير صالح الحذف </string>
+    <string name="error_detect1" > خطأ: دالة الكشف عن الوجه غير صالحه </string>
+    <string name="error_find1"> خطأ: لم يتم العثور على الشخص  </string>
+    <string name="error_add_face1"> خطأ: اضافة الشخص غير صالح </string>
+    <string name="error_detils1"> خطأ:  اثناء جلب البيانات  </string>
+    <string name="error_deleting2"> خطأ: طلب الحذف غير صالح </string>
+    <string name="error_detect2"> خطأ: طلب اكتشاف الوجه غير صالح </string>
+    <string name="error_find2"> خطأ: طلب البحث عن مشابه  غير صالح </string>
+    <string name="error_add_face2"> خطأ: طلب إضافة شخص  غير صالح </string>
+    <string name="error_detils2"> خطأ: طلب جلب البيانات غير صالح </string>
+    <string name="successfully_created">تمت الاضافة بنجاح </string>
+    <string name="alrady_exist" >خطأ: المعلومات مخزنة مسبقا </string>
     <string name="pick_gallery">">من الاستديو</string>
     <string name="click_camera" >من الكامير </string>
     <string name="remove" >محو الصورة</string>
+
+    <string name="error_space" > خطأ في البداية لاتضع مسافة </string>
+    <string name="response" >استجابة</string>
+    <string name="ok" >موافق</string>
+    <string name="action_settings">الإعدادات</string>
+    <string name="title_activity_settings">الإعدادات</string>
+    <string name="description" >إطمئن هو تطبيق لمساعدة الأشخاص المفقودين</string>
+    <string name="about_us" > مجموعة إطمئن هي مجموعة صغيرة من المطورين الذين يعتقدون أن التقنية ممكن ان تحل المشاكل</string>
+    <string name="pref_header_contact" > اتصل بنا</string>
+    <string name="contact_us" >contact@etmaen.org</string>
+    <string name="pref_header_about" >المطور </string>
+    <string name="title_version" >الإصدار</string>
+    <string name="app_version" >1.0</string>
+    <string name="add_persons" >إضافة اشخاص</string>
+    <string name="verify_persons" > التحقق من الأشخاص </string>
+    <string name="location_update" > بدأت تحديثات الموقع!</string>
+    <string name="error_location" > إعدادات الموقع غير كافية ، ولا يمكن إصلاحها هنايمكن إصلاح من الإعدادات. </string>
+    <string name="send_success" > أرسلت بنجاح</string>
+    <string name="error_not_found" > عذرا الشخص غير موجود</string>
+
 </resources>

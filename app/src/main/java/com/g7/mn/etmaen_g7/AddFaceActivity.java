@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -124,7 +123,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         if (getSupportActionBar() != null) {//back boutton
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        setTitle("Add Persons");
+        setTitle(R.string.add_persons);
         if (savedInstanceState != null) {
             if (path != null) {
                 path = savedInstanceState.getString(POST_PATH);
@@ -179,7 +178,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 @Override
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+                        showDialog(getResources().getString(R.string.record_deleted_success));
+                       // Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             mDb.imageClassifierDao().deleteClassifier(position);
                         });
@@ -187,7 +187,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     } else {
                         hideProgress();
                         adapter.restoreItem(position, position1);
-                        Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
+                        showDialog(getResources().getString(R.string.error_deleting1));
+                       // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -195,13 +196,15 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                     hideProgress();
                     adapter.restoreItem(position, position1);
-                    Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
+                    showDialog(getResources().getString(R.string.error_deleting2));
+                    //Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
                 }
             });
         } catch(Exception e) {
             hideProgress();
             adapter.restoreItem(position, position1);
-            Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
+            showDialog(getResources().getString(R.string.error_deleting1));
+           // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -432,10 +435,10 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         name.setError(null);
         contact_number.setError(null);
 
-        if (input_name.getText().toString().startsWith(" ")) {//shoud not start with space
+        if (input_name.getText().toString().startsWith(" ")) {//should not start with space
             name.setError(getString(R.string.error_space));
 
-        }else  if (2 > input_name.length()|| input_name.length()>20) {
+        }else  if (2 > input_name.length()&& input_name.length()>20) {
             name.setError(getString(R.string.error_name));
 
          } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
@@ -481,13 +484,12 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                                     hideProgress();
                                     showDialog(getResources().getString(R.string.error_no_face));
 
-
                                     //Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         } else {
                             hideProgress();
-                            showDialog(getResources().getString(R.string.error_creation));
+                            showDialog(getResources().getString(R.string.error_detect1));
                            // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -495,7 +497,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onFailure(Call<List<DetectFaceResponse>> call, Throwable t) {
                         hideProgress();
-                        showDialog(getResources().getString(R.string.error_creation));
+                        showDialog(getResources().getString(R.string.error_detect2));
                         //Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -529,7 +531,6 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onResponse(Call<List<FindSimilarResponse>> call, Response<List<FindSimilarResponse>> response) {
                 if (response.isSuccessful()) {
-
                     if (response.body() != null) {
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
@@ -543,16 +544,14 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }else {
                     hideProgress();
-                    addFace(username,phonenumber);
-                   // showDialog("not successfull");
-                   // Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+                    addFace(username,phonenumber);// empty list
                 }
             }
 
             @Override
             public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
                 hideProgress();
-                showDialog(getResources().getString(R.string.alrady_exist));
+                showDialog(getResources().getString(R.string.error_find2));
                // Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
             }
         });
@@ -602,7 +601,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                             }
                         } else {
                             hideProgress();
-                            showDialog(getResources().getString(R.string.error_no_face));
+                            showDialog(getResources().getString(R.string.error_add_face1));
                            // Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -610,7 +609,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onFailure(Call<AddFaceResponse> call, Throwable t) {
                         hideProgress();
-                        showDialog(getResources().getString(R.string.error_creation));
+                        showDialog(getResources().getString(R.string.error_add_face2));
                        // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
 
                     }

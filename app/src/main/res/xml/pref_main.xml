@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:icon="@drawable/ic_action_describt"
+        android:title="Description"/>
+        <Preference
+            android:selectable="false"
+            android:summary="@string/description" />
+
+
+    <Preference
+        android:icon="@drawable/ic_action_about"
+        android:title="@string/pref_header_about"/>
+
+        <Preference
+            android:selectable="false"
+            android:summary="@string/about_us" />
+
+
+    <Preference
+        android:layout_width="match_parent"
+        android:title="@string/pref_header_contact"
+        android:icon="@drawable/ic_action_name"/>
+        <Preference
+            android:selectable="false"
+            android:summary="@string/contact_us"/>
+
+
+        <Preference
+            android:layout_width="match_parent"
+            android:summary="@string/app_version"
+            android:title="@string/title_version" />
+
+
+
+</PreferenceScreen>
