@@ -4,7 +4,7 @@
     <string name="contact_number" translatable="true">Contact phone number 9665########</string>
     <string name="upload" translatable="true">Upload</string>
     <string name="classification" translatable="true">Lost Persons List</string>
-    <string name="verify" translatable="true">Help lost Person</string>
+    <string name="verify" translatable="true">Help Lost Person</string>
     <string name="add_face" translatable="true">New Registration</string>
     <string name="error_name" translatable="true">Length name is required between 2 to 20</string>
     <string name="error_contact_number" translatable="true">Contact number is required as 9665#######</string>
@@ -64,4 +64,5 @@
     <string name="error_location" translatable="true">Location settings are inadequate, and cannot be fixed here. Fix in Settings.</string>
     <string name="send_success" translatable="true">successfully sent</string>
     <string name="error_not_found" translatable="true">Sorry person not found</string>
+    <string name="turn_on" translatable="true"> Please turn On your location</string>
 </resources>

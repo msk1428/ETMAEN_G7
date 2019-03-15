@@ -284,16 +284,17 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            if (addresses != null) {
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
 
-            String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName();
-
-            addressText.setText(address);
-            locationText.setText(mCurrentLocation.getLatitude()+ ", " + mCurrentLocation.getLongitude());
+                addressText.setText(address);
+                locationText.setText(mCurrentLocation.getLatitude() + ", " + mCurrentLocation.getLongitude());
+            }
 
         }
     }
@@ -407,8 +408,10 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                 if (postPath == null) {
                     showDialog(getResources().getString(R.string.select_image));
                    // Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
-                }else if(addressText.getText() == null || locationText.getText() == null) {
-                    Toast.makeText(this, "Please turnOn your location", Toast.LENGTH_SHORT).show();
+                }else if(addressText.getText().toString() == getString(R.string.not_available) || locationText.getText().toString() == getString(R.string.not_available)) {
+                     showDialog(getResources().getString(R.string.turn_on));
+                    //Toast.makeText(this, R.string.turn_on, Toast.LENGTH_SHORT).show();
+                    startLocation();//permeation
                 } else{
                     addface();
                 }//if press button verify they chack the postpath then go to API
@@ -812,20 +815,16 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void onResume() {
+    public void onResume() {//in resum we need to refresh location
         super.onResume();
 
-        if (mRequestingLocationUpdates && checkPermissions()) {
+        if (mRequestingLocationUpdates && checkPermissions()) {//if it is got perm
             startLocationUpdates();
+        } else {
+            Toast.makeText(this, R.string.turn_on, Toast.LENGTH_SHORT).show();// should be waiting for location
         }
-
         updateLocationUI();
 
-    }
-
-
-    public void onPause() {
-        super.onPause();
     }
 
 
