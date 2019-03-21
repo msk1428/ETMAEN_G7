@@ -11,7 +11,7 @@
         android:id="@+id/verify_person"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="@string/finder"
+        android:text="@string/verify"
         android:background="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -3,7 +3,7 @@
 
     <Preference
         android:icon="@drawable/ic_action_describt"
-        android:title="Description"/>
+        android:title="@string/app_description"/>
         <Preference
             android:selectable="false"
             android:summary="@string/description" />

@@ -4,8 +4,8 @@
     <string name="contact_number">رقم التواصل ########9665</string>
     <string name="upload">رفـع</string>
     <string name="classification">الأشخاص الضائعين </string>
-    <string name="finder">مساعدة ضائع</string>
-    <string name="guardian">ولي أمر</string>
+    <string name="guardian1"> ولي الامر</string>
+    <string name="guardian">إضافة قريبك</string>
     <string name="verify">مساعدة شخص ضائع</string>
     <string name="add_face">تسجيل جديد</string>
     <string name="error_name">اسم الطول مطلوب بين 2 إلى 20</string>
@@ -45,7 +45,7 @@
     <string name="error_detils2"> خطأ: طلب جلب البيانات غير صالح يرجى التحقق من حالة الاتصال</string>
     <string name="successfully_created">تمت الاضافة بنجاح </string>
     <string name="alrady_exist" >خطأ: المعلومات مخزنة مسبقا </string>
-    <string name="pick_gallery">">من الاستديو</string>
+    <string name="pick_gallery">من الاستديو</string>
     <string name="click_camera" >من الكامير </string>
     <string name="remove" >محو الصورة</string>
 
@@ -61,6 +61,7 @@
     <string name="pref_header_about" >المطور </string>
     <string name="title_version" >الإصدار</string>
     <string name="app_version" >1.0</string>
+    <string name="app_description" >الوصف</string>
     <string name="location_update" > بدأت تحديثات الموقع!</string>
     <string name="error_location" > إعدادات الموقع غير كافية ، ولا يمكن إصلاحها هنايمكن إصلاح من الإعدادات. </string>
     <string name="send_success" > أرسلت بنجاح</string>

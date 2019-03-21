@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     app:srcCompat="@drawable/ic_add_a_photo_black_24dp" />
-            </RelativeLayout>
+            </RelativeLayout >
 
             <LinearLayout
                 android:id="@+id/form"
@@ -62,15 +62,15 @@
                         android:inputType="text"
                         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ أبتثجحخدذرزسشصضطظعغقفكلمنهوياىةءئ"
                         android:hint="@string/full_name" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:text="@string/guardian1"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"/>
                 </android.support.design.widget.TextInputLayout>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="@string/guardian"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"/>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/contact_number"

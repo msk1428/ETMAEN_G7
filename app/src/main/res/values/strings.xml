@@ -4,8 +4,8 @@
     <string name="contact_number" translatable="true">Contact phone number 9665########</string>
     <string name="upload" translatable="true">Upload</string>
     <string name="classification" translatable="true">Lost Persons List</string>
-    <string name="finder" translatable="true">Finder</string>
-    <string name="guardian" translatable="true">Guardian</string>
+    <string name="guardian1" translatable="true"> Guardian</string>
+    <string name="guardian" translatable="true">Add Related Person</string>
     <string name="verify" translatable="true">Help Lost Person</string>
     <string name="add_face" translatable="true">New Registration</string>
     <string name="error_name" translatable="true">Length name is required between 2 to 20</string>
@@ -61,6 +61,8 @@
     <string name="pref_header_about" translatable="true">Develop By</string>
     <string name="title_version" translatable="true">Version</string>
     <string name="app_version" translatable="true">1.0</string>
+    <string name="app_description" translatable="true">Description</string>
+
 
     <string name="location_update" translatable="true">Started location updates!</string>
     <string name="error_location" translatable="true">Location settings are inadequate, and cannot be fixed here. Fix in Settings.</string>

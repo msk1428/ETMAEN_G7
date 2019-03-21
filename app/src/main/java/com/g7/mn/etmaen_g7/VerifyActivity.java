@@ -442,7 +442,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     private void launchImagePicker() {
 
         new MaterialDialog.Builder(this)
-                .title("Set your image")
+                .title(R.string.uploadImages)
                 .items(uploadImages)
                 .itemsIds(itemIds)
                 .itemsCallback((dialog, view, which, text) -> {
