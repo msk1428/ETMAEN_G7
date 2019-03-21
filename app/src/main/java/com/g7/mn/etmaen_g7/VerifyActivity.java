@@ -129,6 +129,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     List<Address> addresses;
     private VerifyAdapter adapter;
     private String persistedFaceId;
+    //location
     private FusedLocationProviderClient mFusedLocationClient;
     private SettingsClient mSettingsClient;
     private LocationRequest mLocationRequest;
@@ -197,13 +198,13 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
             }
         }).attachToRecyclerView(recycler_view);
 
-        setupViewModel();
+        setupViewModel();//retrive data from localdb
         initpDiloag();
 
 
 
     }
-
+    //location
     private void init() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
@@ -351,7 +352,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         startActivity(intent);
     }
 
-    private boolean checkPermissions() {
+    private boolean checkPermissions() { // accept-deny
         int permissionState = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
@@ -393,9 +394,10 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         switch (v.getId()) {//get if of click
             case R.id.selectImage: // if all permission oky then go  launchImagePicker();
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
+                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) ||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                         ActivityCompat.requestPermissions(VerifyActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-                        //request need to return function call it onRequestPermissionsResult
                     } else {
                         launchImagePicker();
                     }
@@ -408,12 +410,12 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                 if (postPath == null) {
                     showDialog(getResources().getString(R.string.select_image));
                    // Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
-                }else if(addressText.getText().toString() == getString(R.string.not_available) || locationText.getText().toString() == getString(R.string.not_available)) {
+                     }else if(addressText.getText().toString() == getString(R.string.not_available) || locationText.getText().toString() == getString(R.string.not_available)) {
                      showDialog(getResources().getString(R.string.turn_on));
                     //Toast.makeText(this, R.string.turn_on, Toast.LENGTH_SHORT).show();
-                    startLocation();//permeation
-                } else{
-                    addface();
+                                 startLocation();//permeation
+                         } else{
+                                addface();
                 }//if press button verify they chack the postpath then go to API
                 break;
 
@@ -446,18 +448,19 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                 .itemsCallback((dialog, view, which, text) -> {
                     switch (which) {
                         case 0:
-                            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);// need another function to return it is onActivityResult()
-                            break;
+                                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);// need another function to return it is onActivityResult()
+                                     break;
                         case 1:
                             captureImage();
                             break;
                         case 2:
                             image_header.setImageResource(R.color.colorPrimary);
-                            postPath.equals(null);
-                            path.equals(null);
+                            postPath=null;
+                            path=null;
                             break;
+
                     }
                 })
                 .show();
@@ -704,6 +707,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
                             hidepDialog();
                             showDialog(getResources().getString(R.string.error_not_found));
+
                             //Toast.makeText(VerifyActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         } else {
                             persistedFaceId = findSimilarResponses.get(0).getPersistedFaceId();
@@ -761,12 +765,17 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                                 String phonenumber = array[1];
                                 String address = addressText.getText().toString();
 
-                                //send sms
-                                sendMySMS(phonenumber, name + " " + getString(R.string.is_found) + address);
-
                                 hidepDialog();
-                                showDialog(getResources().getString(R.string.person_found));
-                                //add to local db  1- verifiedEntry it is constcter on  verifiedEntry class
+                                showDialog(getResources().getString(R.string.succees_fetch_details));
+                                //send sms
+
+                                 if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED)) {
+                                    ActivityCompat.requestPermissions(VerifyActivity.this, new String[]{Manifest.permission.SEND_SMS}, 0);
+                                         }else{
+                                                  sendMySMS(phonenumber, name + " " + getString(R.string.is_found) + address);
+                                                                }
+
+                                    //add to local db  1- verifiedEntry it is constcter on  verifiedEntry class
 
                                 VerifiedEntry verifiedEntry = new VerifiedEntry(name, phonenumber, persistedFaceId, postPath, address);
                               //2- excut on backgroung by AppExctuors class 3- call opration insert in imageClassifierDao
@@ -875,8 +884,8 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     private void emptyInput() {
 
         image_header.setImageResource(R.color.colorPrimary);
-        postPath.equals(null);
-        path.equals(null);
+        postPath=null;
+        path=null;
     }
 
     @Override

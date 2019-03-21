@@ -4,6 +4,8 @@
     <string name="contact_number" translatable="true">Contact phone number 9665########</string>
     <string name="upload" translatable="true">Upload</string>
     <string name="classification" translatable="true">Lost Persons List</string>
+    <string name="finder" translatable="true">Finder</string>
+    <string name="guardian" translatable="true">Guardian</string>
     <string name="verify" translatable="true">Help Lost Person</string>
     <string name="add_face" translatable="true">New Registration</string>
     <string name="error_name" translatable="true">Length name is required between 2 to 20</string>
@@ -34,13 +36,13 @@
     <string name="error_find1" translatable="true">Error: Invalid Find Person</string>
     <string name="error_add_face1" translatable="true">Error: Invalid Add Person </string>
     <string name="error_detils1" translatable="true">Error: Invalid Fetching record </string>
-    <string name="error_deleting2" translatable="true">Error: Invalid request Delete</string>
-    <string name="error_detect2" translatable="true">Error: Invalid request Detect Face</string>
-    <string name="error_find2" translatable="true">Error: Invalid request Find Similar</string>
-    <string name="error_add_face2" translatable="true">Error: Invalid request Add Person</string>
-    <string name="error_detils2" translatable="true">Error: Invalid request Fetching record </string>
+    <string name="error_deleting2" translatable="true">Error: Invalid request Delete please check your connection</string>
+    <string name="error_detect2" translatable="true">Error: Invalid request Detect Face please check your connection</string>
+    <string name="error_find2" translatable="true">Error: Invalid request Find Similar please check your connection</string>
+    <string name="error_add_face2" translatable="true">Error: Invalid request Add Person please check your connection</string>
+    <string name="error_detils2" translatable="true">Error: Invalid request Fetching record please check your connection </string>
 
-
+    <string name="succees_fetch_details" translatable="true">Successfully Fetch Details</string>
      <string name="pick_gallery" translatable="true">Pick from gallery</string>
     <string name="click_camera" translatable="true">Click from camera</string>
     <string name="remove" translatable="true">Remove image</string>

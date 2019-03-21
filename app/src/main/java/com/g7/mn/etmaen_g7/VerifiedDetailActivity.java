@@ -36,7 +36,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
     private int mVerifiedId = DEFAULT_VERIFIED_ID;
     private AppDatabase mDb;
     private String phonenumber, name, address;
-    private ProgressDialog pDialog;
+
 
     @BindView(R.id.classifier_image)
     ImageView classifier_image;
@@ -60,7 +60,8 @@ public class VerifiedDetailActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         mDb = AppDatabase.getInstance(getApplicationContext());
-        initpDiloag();
+
+
         Intent intent = getIntent();//1check
         if (intent != null && intent.hasExtra(EXTRA_VERIFIED_ID)) {
             // populate the UI
@@ -102,7 +103,8 @@ public class VerifiedDetailActivity extends AppCompatActivity {
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 sendMessage();
             }else{
-                Toast.makeText(VerifiedDetailActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+                showDialog(getResources().getString(R.string.permission_denied));
+                //Toast.makeText(VerifiedDetailActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -128,18 +130,14 @@ public class VerifiedDetailActivity extends AppCompatActivity {
     }
 
     private void sendMessage() {
-        sendMySMS(phonenumber, name + " " + getString(R.string.is_found)+ address);
 
-    }
-
-    public void sendMySMS(String phone, String message) {
-
+        String message=getString(R.string.is_found)+ address;
         //Check if the phoneNumber is empty
-        if (phone.isEmpty()) {
+        if (phonenumber.isEmpty()) {
            return;
         } else {
 
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phone));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + phonenumber));
             intent.putExtra("sms_body", message);
             startActivityForResult(intent, REQUEST_SEND_SMS);
             //startActivity(intent);
@@ -161,11 +159,8 @@ public class VerifiedDetailActivity extends AppCompatActivity {
             // Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
         }
     }
-    private void initpDiloag() { //3- inital step
-        pDialog = new ProgressDialog(this);
-        pDialog.setMessage(getString(R.string.msg_loading));
-        pDialog.setCancelable(true);
-    }
+
+
 
     private void showDialog(String text) {
         boolean wrapInScrollView = true;

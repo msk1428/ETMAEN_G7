@@ -78,12 +78,6 @@ public class VerifyAdapter extends RecyclerView.Adapter<VerifyAdapter.Classifier
         notifyItemRemoved(position);
     }
 
-    public void restoreItem(VerifiedEntry item, int position) { //recancell in DB
-        mImageEntries.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-    }
-
     public interface ItemClickListener { //3
         void onItemClickListener(int itemId);
     }

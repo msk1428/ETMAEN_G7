@@ -4,6 +4,8 @@
     <string name="contact_number">رقم التواصل ########9665</string>
     <string name="upload">رفـع</string>
     <string name="classification">الأشخاص الضائعين </string>
+    <string name="finder">مساعدة ضائع</string>
+    <string name="guardian">ولي أمر</string>
     <string name="verify">مساعدة شخص ضائع</string>
     <string name="add_face">تسجيل جديد</string>
     <string name="error_name">اسم الطول مطلوب بين 2 إلى 20</string>
@@ -36,11 +38,11 @@
     <string name="error_find1"> خطأ: لم يتم العثور على الشخص  </string>
     <string name="error_add_face1"> خطأ: اضافة الشخص غير صالح </string>
     <string name="error_detils1"> خطأ:  اثناء جلب البيانات  </string>
-    <string name="error_deleting2"> خطأ: طلب الحذف غير صالح </string>
-    <string name="error_detect2"> خطأ: طلب اكتشاف الوجه غير صالح </string>
-    <string name="error_find2"> خطأ: طلب البحث عن مشابه  غير صالح </string>
-    <string name="error_add_face2"> خطأ: طلب إضافة شخص  غير صالح </string>
-    <string name="error_detils2"> خطأ: طلب جلب البيانات غير صالح </string>
+    <string name="error_deleting2"> خطأ: طلب الحذف غير صالح يرجى التحقق من حالة الاتصال </string>
+    <string name="error_detect2"> خطأ: طلب اكتشاف الوجه غير صالح يرجى التحقق من حالة الاتصال</string>
+    <string name="error_find2"> خطأ: طلب البحث عن مشابه  غير صالح يرجى التحقق من حالة الاتصال </string>
+    <string name="error_add_face2"> خطأ: طلب إضافة شخص  غير صالح يرجى التحقق من حالة الاتصال</string>
+    <string name="error_detils2"> خطأ: طلب جلب البيانات غير صالح يرجى التحقق من حالة الاتصال</string>
     <string name="successfully_created">تمت الاضافة بنجاح </string>
     <string name="alrady_exist" >خطأ: المعلومات مخزنة مسبقا </string>
     <string name="pick_gallery">">من الاستديو</string>
@@ -63,5 +65,6 @@
     <string name="error_location" > إعدادات الموقع غير كافية ، ولا يمكن إصلاحها هنايمكن إصلاح من الإعدادات. </string>
     <string name="send_success" > أرسلت بنجاح</string>
     <string name="error_not_found" > عذرا الشخص غير موجود</string>
+    <string name="succees_fetch_details" translatable="true">تم جلب البيانات بنجاح</string>
 
 </resources>

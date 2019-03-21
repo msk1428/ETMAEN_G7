@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
@@ -67,8 +68,8 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 
 public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener{ //1 on adapter
-    @BindView(R.id.main_content)
-    CoordinatorLayout main_content;
+
+
 
     @BindView(R.id.image_header)
     ImageView image_header;
@@ -117,7 +118,6 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_face_layout);
-
         ButterKnife.bind(this);
 
         if (getSupportActionBar() != null) {//back boutton
@@ -230,7 +230,9 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.selectImage:
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
+                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) ||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                         ActivityCompat.requestPermissions(AddFaceActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
                     } else {
                         launchImagePicker();
@@ -250,6 +252,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 launchImagePicker();
             } else {
                 showDialog(getResources().getString(R.string.permission_denied));
+
                 //Toast.makeText(AddFaceActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
 
             }
@@ -267,15 +270,17 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     case 0:
                         Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);
+                        startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);// need another function to return it is onActivityResult()
+
                         break;
                     case 1:
                         captureImage();
                         break;
+
                     case 2:
                         image_header.setImageResource(R.color.colorPrimary);
-                        postPath.equals(null);
-                        path.equals(null);
+                        postPath=null;
+                        path=null;
                         break;
                 }
             })
@@ -483,7 +488,6 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                                 } else {
                                     hideProgress();
                                     showDialog(getResources().getString(R.string.error_no_face));
-
                                     //Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -533,10 +537,10 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         List<FindSimilarResponse> findSimilarResponses = response.body();
-                        if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {
+                        if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {// if faceid= null , empty
                             addFace(username,phonenumber);
                         } else {
-                            hideProgress();
+                            hideProgress();//faceid=
                             showDialog(getResources().getString(R.string.alrady_exist));
                             //Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
                         }
@@ -646,12 +650,13 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
+
     private void emptyInputEditText() {
         input_name.setText("");
         input_contact_number.setText("");
         image_header.setImageResource(R.color.colorPrimary);
-        postPath.equals(null);
-        path.equals(null);
+        postPath=null;
+        path=null;
     }
 
 
