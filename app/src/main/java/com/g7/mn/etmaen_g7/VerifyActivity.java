@@ -140,7 +140,6 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     // location updates interval - 10sec
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
-
     private static final int REQUEST_CHECK_SETTINGS = 100;
 
     @Override
@@ -193,7 +192,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                     // remove the item from recycler view
                     adapter.removeItem(viewHolder.getAdapterPosition());
 
-                    deleteRecord(persistedId, db_position, position);
+                    deleteRecord(db_position);
                 }
             }
         }).attachToRecyclerView(recycler_view);
@@ -359,7 +358,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     }
 
 
-    private void deleteRecord(String persistedId, VerifiedEntry db_position, int position) {
+    private void deleteRecord(VerifiedEntry db_position) {
         showDialog(getResources().getString(R.string.record_deleted_success));
         //Toast.makeText(VerifyActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
         AppExecutors.getInstance().diskIO().execute(() -> {
@@ -371,21 +370,6 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         VerifyViewModel viewModel = ViewModelProviders.of(this).get(VerifyViewModel.class);
         viewModel.getTasks().observe(this, taskEntries -> adapter.setTasks(taskEntries));
     }
-
-
-    private String  getAddressText(Address address) {
-    String addressText ="";
-    final int maxAddressLineIndex = address.getMaxAddressLineIndex();
-
-    for(int i =0 ; i<=maxAddressLineIndex;i++){
-        addressText +=address.getAddressLine(i);
-        if (i != maxAddressLineIndex){
-            addressText += "\n";// new line
-        }
-    }
-    return addressText;
-    }
-
 
 
     @Override
@@ -496,6 +480,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
             fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
 
             callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
 
             startActivityForResult(callCameraApplicationIntent, CAMERA_PIC_REQUEST);
 
@@ -738,6 +723,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
 
 
     private void fetchDetails(String persistedFaceId) {
+        Log.i(TAG,"start fetchDetails(String persistedFaceId) method");
 
         Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API,AZURE_BASE_URL);
 
@@ -893,6 +879,5 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         Intent intent = new Intent(VerifyActivity.this, VerifiedDetailActivity.class);
         intent.putExtra(EXTRA_VERIFIED_ID, itemId);
         startActivity(intent);
-
     }
 }

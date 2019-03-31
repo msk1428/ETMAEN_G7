@@ -131,7 +131,7 @@ public class VerifiedDetailActivity extends AppCompatActivity {
 
     private void sendMessage() {
 
-        String message=getString(R.string.is_found)+ address;
+        String message=name+ getString(R.string.is_found)+ address;
         //Check if the phoneNumber is empty
         if (phonenumber.isEmpty()) {
            return;

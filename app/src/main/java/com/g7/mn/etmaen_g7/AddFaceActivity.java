@@ -459,6 +459,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void addFace() {
+        Log.i(TAG,"start addface() method");
+        Log.e(TAG,"start addface() method");
         showProgress();
         if (postPath == null || postPath.isEmpty()) {
             hideProgress();
@@ -528,6 +530,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void findFace() {
+        Log.i(TAG,"start findFace() method");
+        Log.e(TAG,"start findFace() method");
         Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
         Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar());
 
@@ -564,7 +568,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
 
     private void addFace(String name, String phonenumber) {
-
+        Log.i(TAG,"start addface(String name, String phonenumber) method");
+        Log.e(TAG,"start addface(String name, String phonenumber) method");
         showProgress();
         if(postPath == null || postPath.isEmpty()){
             hideProgress();
@@ -658,7 +663,6 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         postPath=null;
         path=null;
     }
-
 
 
     private void showProgress() {
