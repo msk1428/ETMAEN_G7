@@ -48,6 +48,7 @@
     <string name="remove" translatable="true">Remove image</string>
 
     <string name="error_space" translatable="true">Error invalid start with space </string>
+    <string name="error_space1" translatable="true">Error invalid name with many space </string>
 
     <string name="response" translatable="true">Response</string>
     <string name="ok" translatable="true">OK</string>

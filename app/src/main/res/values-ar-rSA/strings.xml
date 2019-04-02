@@ -50,6 +50,7 @@
     <string name="remove" >محو الصورة</string>
 
     <string name="error_space" > خطأ في البداية لاتضع مسافة </string>
+    <string name="error_space1">خطأ اسم غير صالح مع العديد من المسافات</string>
     <string name="response" >استجابة</string>
     <string name="ok" >موافق</string>
     <string name="action_settings">الإعدادات</string>

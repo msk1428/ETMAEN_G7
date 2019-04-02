@@ -67,8 +67,7 @@ import retrofit2.Response;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.g7.mn.etmaen_g7.utlis.Constants.AZURE_BASE_URL;
 
-public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener , AddClassifierAdapter.ItemClickListener{ //1 on adapter
-
+public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener, AddClassifierAdapter.ItemClickListener { //1 on adapter
 
 
     @BindView(R.id.image_header)
@@ -100,18 +99,16 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
     private static final int CAMERA_PIC_REQUEST = 1;
     private static final int REQUEST_PICK_PHOTO = 2;
-    private String postPath, path, mediaPath,username ,phonenumber, faceId;
-    private String mImageFileLocation= "" ;
+    private String postPath, path, mediaPath, username, phonenumber, faceId;
+    private String mImageFileLocation = "";
     private Uri fileUri;
     private static final String POST_PATH = "post_path";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private static final String TAG = AddFaceActivity.class.getSimpleName();
     private AppDatabase mDb; //2 on adapter
     private String[] uploadImages;
-    private int[] itemIds ;
+    private int[] itemIds;
     private AddClassifierAdapter adapter; //3
-
-
 
 
     @Override
@@ -132,14 +129,14 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-            selectImage.setOnClickListener(this);
-            button_upLoad.setOnClickListener(this);
-            uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
-            itemIds = new int[]{0, 1, 2};
-            mDb = AppDatabase.getInstance(getApplicationContext());
-            recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
-            adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
-            recycler_view.setAdapter(adapter);
+        selectImage.setOnClickListener(this);
+        button_upLoad.setOnClickListener(this);
+        uploadImages = new String[]{getString(R.string.pick_gallery), getString(R.string.click_camera), getString(R.string.remove)};
+        itemIds = new int[]{0, 1, 2};
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        recycler_view.setLayoutManager(new LinearLayoutManager(this));// chose liner layout based on lock ادفانس ليست فيو هي نفس اليست العادية لكن انهانس عنها
+        adapter = new AddClassifierAdapter(this, this);//grid linear list/ staggered grid is lik many of  boxes
+        recycler_view.setAdapter(adapter);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -168,8 +165,9 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         setupViewModel();
 
     }
+
     private void deleteRecord(String persistedid, AddEntry position, int position1) {
-        try{
+        try {
             showProgress();
             Service service = DataGenerator.creatService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
             Call<Void> call = service.deleteFace(persistedid);
@@ -179,7 +177,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                     if (response.isSuccessful()) {
                         showDialog(getResources().getString(R.string.record_deleted_success));
-                       // Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(AddFaceActivity.this, R.string.record_deleted_success, Toast.LENGTH_SHORT).show();
                         AppExecutors.getInstance().diskIO().execute(() -> {
                             mDb.imageClassifierDao().deleteClassifier(position);
                         });
@@ -188,7 +186,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         hideProgress();
                         adapter.restoreItem(position, position1);
                         showDialog(getResources().getString(R.string.error_deleting1));
-                       // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -200,11 +198,11 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     //Toast.makeText(AddFaceActivity.this, R.string.error_deleting2, Toast.LENGTH_SHORT).show();
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             hideProgress();
             adapter.restoreItem(position, position1);
             showDialog(getResources().getString(R.string.error_deleting1));
-           // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
+            // Toast.makeText(AddFaceActivity.this, R.string.error_deleting1, Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -220,7 +218,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_upload:
-                if (postPath == null ) {
+                if (postPath == null) {
                     showDialog(getResources().getString(R.string.select_image));
                     //Toast.makeText(this, R.string.select_image, Toast.LENGTH_SHORT).show();
                 } else {
@@ -230,8 +228,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.selectImage:
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)||
-                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) ||
+                    if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
                             (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                         ActivityCompat.requestPermissions(AddFaceActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
                     } else {
@@ -262,65 +260,66 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
     private void launchImagePicker() {
         new MaterialDialog.Builder(this)
-            .title(R.string.uploadImages)
-            .items(uploadImages)
-            .itemsIds(itemIds)
-            .itemsCallback((dialog, view, which, text) ->{
-                switch (which){
-                    case 0:
-                        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);// need another function to return it is onActivityResult()
+                .title(R.string.uploadImages)
+                .items(uploadImages)
+                .itemsIds(itemIds)
+                .itemsCallback((dialog, view, which, text) -> {
+                    switch (which) {
+                        case 0:
+                            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);// need another function to return it is onActivityResult()
 
-                        break;
-                    case 1:
-                        captureImage();
-                        break;
+                            break;
+                        case 1:
+                            captureImage();
+                            break;
 
-                    case 2:
-                        image_header.setImageResource(R.color.colorPrimary);
-                        postPath=null;
-                        path=null;
-                        break;
-                }
-            })
-             .show();
+                        case 2:
+                            image_header.setImageResource(R.color.colorPrimary);
+                            postPath = null;
+                            path = null;
+                            break;
+                    }
+                })
+                .show();
     }
+
     /**
      * Launching camera app to capture image
      */
     private void captureImage() {
-        if(Build.VERSION.SDK_INT>12){
+        if (Build.VERSION.SDK_INT > 12) {
             Intent callCameraApplicationIntent = new Intent();
             callCameraApplicationIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            File photoFile= null;
+            File photoFile = null;
 
-            try{
+            try {
                 photoFile = createImageFile();
 
-            }catch (IOException e){
+            } catch (IOException e) {
                 Logger.getAnonymousLogger().info("Exception error in generating the file");
                 e.printStackTrace();
             }
             Uri outputUri = FileProvider.getUriForFile(
-              this,BuildConfig.APPLICATION_ID+".provider",
-               photoFile);
-            callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT,outputUri);
+                    this, BuildConfig.APPLICATION_ID + ".provider",
+                    photoFile);
+            callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 
             callCameraApplicationIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             Logger.getAnonymousLogger().info("Calling the camera App by intent");
 
-            startActivityForResult(callCameraApplicationIntent,CAMERA_PIC_REQUEST);
-        }else {
+            startActivityForResult(callCameraApplicationIntent, CAMERA_PIC_REQUEST);
+        } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
 
-            intent.putExtra(MediaStore.EXTRA_OUTPUT,fileUri);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 
-            startActivityForResult(intent,CAMERA_PIC_REQUEST);
+            startActivityForResult(intent, CAMERA_PIC_REQUEST);
 
         }
     }
@@ -329,14 +328,14 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         Logger.getAnonymousLogger().info("Generating the image - method started");
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmSS").format(new Date());
-        String imageFileName = "IMAGE_"+timeStamp;
+        String imageFileName = "IMAGE_" + timeStamp;
 
         File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/photo_saving_app");
         Logger.getAnonymousLogger().info("Storage directory set");
 
-        if(!storageDirectory.exists()) storageDirectory.mkdir();
+        if (!storageDirectory.exists()) storageDirectory.mkdir();
 
-        File image = new File (storageDirectory,imageFileName+".jpg");
+        File image = new File(storageDirectory, imageFileName + ".jpg");
 
         Logger.getAnonymousLogger().info("File name and path set");
 
@@ -351,12 +350,12 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private static File getOutputMediaFile(int type) {
-        File mediaStorageDir = new File (Environment
+        File mediaStorageDir = new File(Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 IMAGE_DIRECTORY_NAME);
-        if(!mediaStorageDir.exists()){
-            if(!mediaStorageDir.mkdir()){
-                Log.d(TAG,"Oops! Failed create "
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdir()) {
+                Log.d(TAG, "Oops! Failed create "
                         + IMAGE_DIRECTORY_NAME + " directory");
                 return null;
             }
@@ -366,25 +365,25 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 Locale.getDefault()).format(new Date());
         File mediaFile;
 
-        if(type == MEDIA_TYPE_IMAGE){
-            mediaFile = new File(mediaStorageDir.getPath()+File.separator
-            +"IMG_"+".jpg");
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "IMG_" + ".jpg");
         } else {
             return null;
         }
-    return mediaFile;
+        return mediaFile;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
-            if(requestCode == REQUEST_PICK_PHOTO){
-                if(data != null){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_PICK_PHOTO) {
+                if (data != null) {
                     // Get the Image from data
                     Uri selectedImage = data.getData();
-                    String [] filePathColumn = {MediaStore.Images.Media.DATA};
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
                     Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
                     assert cursor != null;
@@ -399,29 +398,28 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     postPath = mediaPath;
                     path = mediaPath;
                 }
-            }else if (requestCode == CAMERA_PIC_REQUEST){
+            } else if (requestCode == CAMERA_PIC_REQUEST) {
                 if (Build.VERSION.SDK_INT > 21) {
                     Glide.with(this).load(mImageFileLocation).into(image_header);
                     postPath = mImageFileLocation;
                     path = postPath;
-                }else{
+                } else {
                     Glide.with(this).load(fileUri).into(image_header);
                     postPath = fileUri.getPath();
                     path = postPath;
                 }
             }
-        }
-        else if (resultCode != RESULT_CANCELED) {
+        } else if (resultCode != RESULT_CANCELED) {
             showDialog(getResources().getString(R.string.sorry_error));
             // Toast.makeText(this, R.string.sorry_error, Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString(POST_PATH,path);
+        outState.putString(POST_PATH, path);
         outState.putParcelable("file_uri", fileUri);
 
     }
@@ -439,28 +437,31 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     private void verifyData() {
         name.setError(null);
         contact_number.setError(null);
+        String text=input_name.getText().toString().replaceAll("\\s+$", "");
 
         if (input_name.getText().toString().startsWith(" ")) {//should not start with space
             name.setError(getString(R.string.error_space));
 
-        }else  if (2 > input_name.length() || input_name.length()>20) {//10
+        } else if (input_name.getText().toString().contains("  ")) {
+            name.setError(getString(R.string.error_space1));
+        } else if (2 > text.length() || text.length() > 20) {//10
             name.setError(getString(R.string.error_name));
 
-         } else if (input_contact_number.length() == 0 || input_contact_number.length()< 12 ) {
+        } else if (input_contact_number.length() == 0 || input_contact_number.length() < 12) {
 
             name.setError(getString(R.string.error_contact_number));
 
-             } else {
+        } else {
 
-             username = input_name.getText().toString().trim();
-             phonenumber = input_contact_number.getText().toString().trim();
-           addFace();
-              }
+            username = input_name.getText().toString().trim();
+            phonenumber = input_contact_number.getText().toString().trim();
+            addFace();
+        }
     }
 
     private void addFace() {
-        Log.i(TAG,"start addface() method");
-        Log.e(TAG,"start addface() method");
+        Log.i(TAG, "start addface() method");
+        Log.e(TAG, "start addface() method");
         showProgress();
         if (postPath == null || postPath.isEmpty()) {
             hideProgress();
@@ -471,12 +472,12 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             byte[] buf;
             try {
                 buf = new byte[in.available()];
-                while (in.read(buf) != -1);
+                while (in.read(buf) != -1) ;
                 RequestBody requestBody = RequestBody
                         .create(MediaType.parse("application/octet-stream"), buf);
 
-                Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
-                Call<List<DetectFaceResponse>> call = userService.detectFace(Boolean.TRUE, Boolean.FALSE,  requestBody);
+                Service userService = DataGenerator.creatService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+                Call<List<DetectFaceResponse>> call = userService.detectFace(Boolean.TRUE, Boolean.FALSE, requestBody);
 
                 call.enqueue(new Callback<List<DetectFaceResponse>>() {
                     @Override
@@ -496,7 +497,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         } else {
                             hideProgress();
                             showDialog(getResources().getString(R.string.error_detect1));
-                           // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -517,6 +518,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             e.printStackTrace();
         }
     }
+
     private FindSimilar findSimilar() {
         FindSimilar findSimilar = new FindSimilar();
         if (faceId != null) {
@@ -530,9 +532,9 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void findFace() {
-        Log.i(TAG,"start findFace() method");
-        Log.e(TAG,"start findFace() method");
-        Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+        Log.i(TAG, "start findFace() method");
+        Log.e(TAG, "start findFace() method");
+        Service userService = DataGenerator.creatService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
         Call<List<FindSimilarResponse>> call = userService.fetchSimilar(findSimilar());
 
         call.enqueue(new Callback<List<FindSimilarResponse>>() {
@@ -542,7 +544,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     if (response.body() != null) {
                         List<FindSimilarResponse> findSimilarResponses = response.body();
                         if (findSimilarResponses.isEmpty() || findSimilarResponses == null) {// if faceid= null , empty
-                            addFace(username,phonenumber);
+                            addFace(username, phonenumber);
                         } else {
                             hideProgress();//faceid=
                             showDialog(getResources().getString(R.string.alrady_exist));
@@ -550,9 +552,9 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         }
 
                     }
-                }else {
+                } else {
                     hideProgress();
-                    addFace(username,phonenumber);// empty list
+                    addFace(username, phonenumber);// empty list
                 }
             }
 
@@ -560,33 +562,32 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
             public void onFailure(Call<List<FindSimilarResponse>> call, Throwable t) {
                 hideProgress();
                 showDialog(getResources().getString(R.string.error_find2));
-               // Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(AddFaceActivity.this, R.string.alrady_exist, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
 
-
     private void addFace(String name, String phonenumber) {
-        Log.i(TAG,"start addface(String name, String phonenumber) method");
-        Log.e(TAG,"start addface(String name, String phonenumber) method");
+        Log.i(TAG, "start addface(String name, String phonenumber) method");
+        Log.e(TAG, "start addface(String name, String phonenumber) method");
         showProgress();
-        if(postPath == null || postPath.isEmpty()){
+        if (postPath == null || postPath.isEmpty()) {
             hideProgress();
             return;
         }
-        String userDate = name + "," +phonenumber;
+        String userDate = name + "," + phonenumber;
 
         try {
             InputStream in = new FileInputStream(new File(postPath));
             byte[] buf;
             try {
                 buf = new byte[in.available()];
-                while (in.read(buf) != -1);
-                RequestBody requestBody = RequestBody .create(MediaType.parse("application/octet-stream"),buf);
+                while (in.read(buf) != -1) ;
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), buf);
 
-                Service userService = DataGenerator.creatService(Service.class,BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
-                Call<AddFaceResponse> call = userService.addFace(userDate,requestBody);
+                Service userService = DataGenerator.creatService(Service.class, BuildConfig.COGNITIVE_SERVICE_API, AZURE_BASE_URL);
+                Call<AddFaceResponse> call = userService.addFace(userDate, requestBody);
 
                 call.enqueue(new Callback<AddFaceResponse>() {
                     @Override
@@ -611,7 +612,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         } else {
                             hideProgress();
                             showDialog(getResources().getString(R.string.error_add_face1));
-                           // Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(AddFaceActivity.this, R.string.error_no_face, Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -619,7 +620,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                     public void onFailure(Call<AddFaceResponse> call, Throwable t) {
                         hideProgress();
                         showDialog(getResources().getString(R.string.error_add_face2));
-                       // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(AddFaceActivity.this, R.string.error_creation, Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -660,8 +661,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         input_name.setText("");
         input_contact_number.setText("");
         image_header.setImageResource(R.color.colorPrimary);
-        postPath=null;
-        path=null;
+        postPath = null;
+        path = null;
     }
 
 
