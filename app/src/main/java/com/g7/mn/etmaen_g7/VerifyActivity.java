@@ -379,9 +379,12 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.selectImage: // if all permission oky then go  launchImagePicker();
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)||
-                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) ||
-                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
-                        ActivityCompat.requestPermissions(VerifyActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.SEND_SMS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                            ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) ||
+                            (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)))
+                    {
+                        ActivityCompat.requestPermissions(VerifyActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,
+                                Manifest.permission.SEND_SMS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
                     } else {
                         launchImagePicker();
                     }
@@ -412,16 +415,22 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) { // if all permissionm okay go to launchImagePicker();
-                launchImagePicker();
-            } else {
+            if(hasAllPermissionsGranted(grantResults)){
+                launchImagePicker(); // all permissions granted
+            }else {
                 showDialog(getResources().getString(R.string.permission_denied));
                 //Toast.makeText(VerifyActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
-
-            }
+               }
         }
     }
+        public boolean hasAllPermissionsGranted(@NonNull int[] grantResults) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
     private void launchImagePicker() {
 
@@ -816,7 +825,7 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
         if (mRequestingLocationUpdates && checkPermissions()) {//if it is got perm
             startLocationUpdates();
         } else {
-            Toast.makeText(this, R.string.turn_on, Toast.LENGTH_SHORT).show();// should be waiting for location
+            Toast.makeText(this, R.string.turn_on, Toast.LENGTH_LONG).show();// should be waiting for location
         }
         updateLocationUI();
 

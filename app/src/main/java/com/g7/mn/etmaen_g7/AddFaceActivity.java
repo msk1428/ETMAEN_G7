@@ -245,16 +245,21 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchImagePicker();
-            } else {
+            if(hasAllPermissionsGranted(grantResults)){
+                launchImagePicker(); // all permissions granted
+            }else {
                 showDialog(getResources().getString(R.string.permission_denied));
-
-                //Toast.makeText(AddFaceActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
-
+                //Toast.makeText(VerifyActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    public boolean hasAllPermissionsGranted(@NonNull int[] grantResults) {//check all permissions
+        for (int grantResult : grantResults) {
+            if (grantResult == PackageManager.PERMISSION_DENIED) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -449,7 +454,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
         } else if (input_contact_number.length() == 0 || input_contact_number.length() < 12) {
 
-            name.setError(getString(R.string.error_contact_number));
+            contact_number.setError(getString(R.string.error_contact_number));
 
         } else {
 
