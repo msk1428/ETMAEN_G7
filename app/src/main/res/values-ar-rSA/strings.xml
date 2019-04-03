@@ -30,7 +30,7 @@
 
     <string name="error_find_face">خطأ: في البحث عن الوجهه</string>
     <string name="is_found" >,تم العثور </string>
-    <string name="turn_on" translatable="true"> من فضلك قم بتشغيل إحداثيات الموقع</string>
+    <string name="turn_on" translatable="true"> من فضلك قم بتشغيل إحداثيات الموقع </string>
 
 
     <string name="error_deleting1" > خطأ: غير صالح الحذف </string>

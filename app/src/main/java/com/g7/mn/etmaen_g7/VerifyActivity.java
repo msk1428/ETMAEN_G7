@@ -761,7 +761,6 @@ public class VerifyActivity extends AppCompatActivity implements View.OnClickLis
                                 String address = addressText.getText().toString();
 
                                 hidepDialog();
-                                showDialog(getResources().getString(R.string.succees_fetch_details));
                                 //send sms
 
                                  if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED)) {
